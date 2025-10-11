@@ -1,9 +1,9 @@
-package com.github.occar421.intellijpartialfontswitcher.services
+package net.masuqat.intellij_partial_font_switcher.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.github.occar421.intellijpartialfontswitcher.MyBundle
+import net.masuqat.intellij_partial_font_switcher.MyBundle
 
 @Service(Service.Level.PROJECT)
 class MyProjectService(project: Project) {

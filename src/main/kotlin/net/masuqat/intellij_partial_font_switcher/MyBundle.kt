@@ -1,4 +1,4 @@
-package com.github.occar421.intellijpartialfontswitcher
+package net.masuqat.intellij_partial_font_switcher
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

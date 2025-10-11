@@ -1,15 +1,15 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.occar421.intellijpartialfontswitcher</id>
-    <name>intellij-partial-font-switcher</name>
-    <vendor>occar421</vendor>
+    <id>net.masuqat.intellij_partial_font_switcher</id>
+    <name>Partial Font Switcher</name>
+    <vendor>MasuqaT.NET</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.occar421.intellijpartialfontswitcher.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.occar421.intellijpartialfontswitcher.startup.MyProjectActivity" />
+        <toolWindow factoryClass="net.masuqat.intellij_partial_font_switcher.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <postStartupActivity implementation="net.masuqat.intellij_partial_font_switcher.startup.MyProjectActivity" />
     </extensions>
 </idea-plugin>

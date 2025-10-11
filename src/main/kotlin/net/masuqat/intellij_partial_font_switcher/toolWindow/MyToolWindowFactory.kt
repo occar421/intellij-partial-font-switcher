@@ -1,4 +1,4 @@
-package com.github.occar421.intellijpartialfontswitcher.toolWindow
+package net.masuqat.intellij_partial_font_switcher.toolWindow
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -8,8 +8,8 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import com.github.occar421.intellijpartialfontswitcher.MyBundle
-import com.github.occar421.intellijpartialfontswitcher.services.MyProjectService
+import net.masuqat.intellij_partial_font_switcher.MyBundle
+import net.masuqat.intellij_partial_font_switcher.services.MyProjectService
 import javax.swing.JButton
 
 

@@ -1,4 +1,4 @@
-package com.github.occar421.intellijpartialfontswitcher.startup
+package net.masuqat.intellij_partial_font_switcher.startup
 
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
