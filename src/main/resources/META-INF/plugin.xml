@@ -8,8 +8,11 @@
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
+    <applicationListeners>
+        <listener class="net.masuqat.intellij_partial_font_switcher.language_level.LanguageLevelSwitcherDynamicPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />
+    </applicationListeners>
+
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="net.masuqat.intellij_partial_font_switcher.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="net.masuqat.intellij_partial_font_switcher.startup.MyProjectActivity" />
+        <editorFactoryListener implementation="net.masuqat.intellij_partial_font_switcher.language_level.LanguageLevelSwitcherEditorListener" />
     </extensions>
 </idea-plugin>
