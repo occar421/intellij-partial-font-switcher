@@ -12,13 +12,13 @@ import javax.swing.JPanel
 class AppSettingsComponent {
     val enabledCheckbox = JBCheckBox("Enabled").apply {
         addActionListener {
-            settingModel.enabled = isSelected
+            vModel.enabled = isSelected
         }
     }
     val fontLabel = JLabel("Font:")
     val fontComboBox = FontComboBox().apply {
         addActionListener {
-            settingModel.fontName = fontName
+            vModel.fontName = fontName
         }
     }
 
@@ -36,12 +36,11 @@ class AppSettingsComponent {
         }, BorderLayout.NORTH)
     }
 
-    val settingModel: SettingModel
-        get() {
-            return SettingModel(this)
-        }
+    val vModel: Model
+        get() = model
+    val model = Model(this)
 
-    class SettingModel(val component: AppSettingsComponent) {
+    class Model(val component: AppSettingsComponent) {
         var enabled: Boolean
             get() = component.enabledCheckbox.isSelected
             set(value) {

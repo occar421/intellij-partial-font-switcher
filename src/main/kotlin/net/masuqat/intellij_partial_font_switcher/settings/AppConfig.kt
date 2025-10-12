@@ -7,6 +7,8 @@ import javax.swing.JComponent
 
 class AppConfig : Configurable, Configurable.Beta {
     val appSettingsComponent = AppSettingsComponent()
+    val configModel: AppSettingsComponent.Model
+        get() = appSettingsComponent.model
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String {
         return "Partial Font Switcher" // TODO: from resource
@@ -17,26 +19,17 @@ class AppConfig : Configurable, Configurable.Beta {
     }
 
     override fun isModified(): Boolean {
-        val state = appState
-        val model = appSettingsComponent.settingModel
-
-        return state.enabled != model.enabled
+        return appState.enabled != configModel.enabled
     }
 
     override fun apply() {
-        val state = appState
-        val model = appSettingsComponent.settingModel
-
-        state.enabled = model.enabled
+        appState.enabled = configModel.enabled
 
         // TODO apply 後に反映させる
     }
 
     override fun reset() {
-        val state = appState
-        val model = appSettingsComponent.settingModel
-
-        model.enabled = state.enabled
+        configModel.enabled = appState.enabled
     }
 
     private val appState: AppSettings.State
