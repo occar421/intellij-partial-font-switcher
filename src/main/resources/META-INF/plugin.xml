@@ -24,5 +24,6 @@
                 displayName="Partial Font Switcher"
         />
         <!-- TODO: displayName from resource -->
+        <applicationService serviceImplementation="net.masuqat.intellij_partial_font_switcher.services.AppSettings"/>
     </extensions>
 </idea-plugin>
