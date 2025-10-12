@@ -1,4 +1,4 @@
-package net.masuqat.intellij_partial_font_switcher
+package net.masuqat.intellij_partial_font_switcher.settings
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.util.NlsContexts

@@ -18,9 +18,9 @@
         <editorFactoryListener
                 implementation="net.masuqat.intellij_partial_font_switcher.language_level.LanguageLevelSwitcherEditorListener"/>
         <applicationConfigurable
-                id="net.masuqat.intellij_partial_font_switcher.AppConfig"
+                id="net.masuqat.intellij_partial_font_switcher.settings.AppConfig"
                 parentId="editor"
-                instance="net.masuqat.intellij_partial_font_switcher.AppConfig"
+                instance="net.masuqat.intellij_partial_font_switcher.settings.AppConfig"
                 displayName="Partial Font Switcher"
         />
         <!-- TODO: displayName from resource -->
