@@ -7,7 +7,9 @@ val fontSelector = LanguageFontSelector()
 // TODO 適切なフォントの指定を考える
 
 fun Editor.overrideWithLanguageFont() {
-    this.colorsScheme.editorFontName = fontSelector.select(this.virtualFile.fileType)
+    if (this.virtualFile != null) {
+        this.colorsScheme.editorFontName = fontSelector.select(this.virtualFile.fileType)
+    }
 }
 
 fun Editor.revertLanguageFont() {
