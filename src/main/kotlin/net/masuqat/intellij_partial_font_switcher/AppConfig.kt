@@ -7,7 +7,7 @@ import javax.swing.JPanel
 
 class AppConfig : Configurable, Configurable.Beta {
     override fun getDisplayName(): @NlsContexts.ConfigurableName String {
-        return "Partial Font Switcher"; // TODO: from resource
+        return "Partial Font Switcher" // TODO: from resource
     }
 
     override fun createComponent(): JComponent {
