@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Editor
 val fontSelector = LanguageFontSelector()
 
 // TODO 適切なフォントの指定を考える
+// TODO AppState （設定）を参照する
 
 fun Editor.overrideWithLanguageFont() {
     if (this.virtualFile != null) {
