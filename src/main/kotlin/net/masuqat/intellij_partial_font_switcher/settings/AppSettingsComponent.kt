@@ -1,13 +1,14 @@
 package net.masuqat.intellij_partial_font_switcher.settings
 
 import com.intellij.openapi.roots.ui.componentsList.components.ScrollablePanel
+import com.intellij.ui.components.JBCheckBox
 import com.intellij.util.ui.FormBuilder
 import java.awt.BorderLayout
 import javax.swing.BoxLayout
 import javax.swing.JPanel
 
 class AppSettingsComponent {
-    val enabledCheckbox = javax.swing.JCheckBox("Enabled")
+    val enabledCheckbox = JBCheckBox("Enabled")
 
     val mainPanel = ScrollablePanel(BorderLayout()).apply {
         add(JPanel().apply {
