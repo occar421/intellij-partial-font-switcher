@@ -12,7 +12,7 @@ import javax.swing.JComponent
 class FileTypeFontTable : UnnamedConfigurable {
     class Model :
         ListTableModel<Model.FileTypeFont>(FileTypeColumnInfo(), FontColumnInfo()) {
-        data class FileTypeFont(val fileType: String, val font: String) // TODO use `FileType`
+        data class FileTypeFont(val fileType: String, val font: String) // FIXME use `FileType`
     }
 
     val model = Model()
