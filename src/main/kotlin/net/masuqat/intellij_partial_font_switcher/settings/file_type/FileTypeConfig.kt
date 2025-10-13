@@ -13,6 +13,7 @@ class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
     }
 
     val model = Model(propertyGraph)
+    val masterDetail = FileTypeFontMasterDetail()
     val table = FileTypeFontTable()
 
     private val panel = panel {
@@ -22,6 +23,11 @@ class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
                 .onIsModified { model.enabled.get() != appState.fileTypeFontState.enabled }
                 .onApply { appState.fileTypeFontState.enabled = model.enabled.get() }
                 .onReset { model.enabled.set(appState.fileTypeFontState.enabled) }
+        }
+        row {
+            configurableCell(masterDetail)
+                .enabledIf(model.enabled)
+                .align(AlignX.FILL)
         }
         row {
             configurableCell(table)
