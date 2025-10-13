@@ -25,6 +25,8 @@ class AppConfig : Configurable, Configurable.Beta {
                 cell(fileTypeConfig.createComponent())
                     .align(AlignX.FILL)
                     .onIsModified { fileTypeConfig.isModified }
+                    .onApply { fileTypeConfig.apply() }
+                    .onReset { fileTypeConfig.reset() }
             }
 
         }.apply {

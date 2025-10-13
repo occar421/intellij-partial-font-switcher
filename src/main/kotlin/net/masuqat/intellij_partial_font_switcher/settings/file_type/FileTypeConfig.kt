@@ -11,10 +11,10 @@ import javax.swing.JComponent
 class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
     class Model(propertyGraph: PropertyGraph) {
         val enabled = propertyGraph.property(true)
-        val table = FileTypeFontTable()
     }
 
     val model = Model(propertyGraph)
+    val table = FileTypeFontTable()
 
     private val panel = panel {
         row {
@@ -25,12 +25,12 @@ class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
                 .onReset { model.enabled.set(appState.enabled) }
         }
         row {
-            cell(model.table.createComponent())
+            cell(table.createComponent())
                 .align(AlignX.FILL)
                 .enabledIf(model.enabled)
-                .onIsModified { model.table.isModified }
-                .onApply { model.table.apply() }
-                .onReset { model.table.reset() }
+                .onIsModified { table.isModified }
+                .onApply { table.apply() }
+                .onReset { table.reset() }
         }.resizableRow()
     }
 
