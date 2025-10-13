@@ -11,8 +11,12 @@ import com.intellij.openapi.components.Storage
 )
 class AppSettings : PersistentStateComponent<AppSettings.State> {
     object State {
-        var enabled = true // FIXME reorganize
-        var fileTypeFonts = mutableListOf<FileTypeFontSetting>()
+        class FileTypeFontState {
+            var enabled = true
+            var list = mutableListOf<FileTypeFont>()
+        }
+
+        var fileTypeFontState = FileTypeFontState()
     }
 
     var appState = State
@@ -34,4 +38,4 @@ class AppSettings : PersistentStateComponent<AppSettings.State> {
 }
 
 // TODO FIXME FileType
-data class FileTypeFontSetting(var fileType: String, var fontName: String)
+data class FileTypeFont(var fileType: String, var fontName: String)

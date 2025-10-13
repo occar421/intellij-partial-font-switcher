@@ -6,7 +6,7 @@ import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.ListTableModel
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
-import net.masuqat.intellij_partial_font_switcher.services.FileTypeFontSetting
+import net.masuqat.intellij_partial_font_switcher.services.FileTypeFont
 import javax.swing.JComponent
 
 class FileTypeFontTable : UnnamedConfigurable {
@@ -34,20 +34,20 @@ class FileTypeFontTable : UnnamedConfigurable {
     }
 
     override fun isModified(): Boolean {
-        if (appState.fileTypeFonts.size != model.items.size) return true
-        return appState.fileTypeFonts.zip(model.items).any { (setting, model) ->
+        if (appState.fileTypeFontState.list.size != model.items.size) return true
+        return appState.fileTypeFontState.list.zip(model.items).any { (setting, model) ->
             setting.fileType != model.fileType || setting.fontName != model.font
         }
     }
 
     override fun apply() {
-        appState.fileTypeFonts.clear()
-        appState.fileTypeFonts.addAll(model.items.map { m -> FileTypeFontSetting(m.fileType, m.font) })
+        appState.fileTypeFontState.list.clear()
+        appState.fileTypeFontState.list.addAll(model.items.map { m -> FileTypeFont(m.fileType, m.font) })
     }
 
     override fun reset() {
         repeat(model.items.size) { model.removeRow(0) }
-        model.addRows(appState.fileTypeFonts.map { s -> Model.FileTypeFont(s.fileType, s.fontName) })
+        model.addRows(appState.fileTypeFontState.list.map { s -> Model.FileTypeFont(s.fileType, s.fontName) })
     }
 
     private val appState: AppSettings.State

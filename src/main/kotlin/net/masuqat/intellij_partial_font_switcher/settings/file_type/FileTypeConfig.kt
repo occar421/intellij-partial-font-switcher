@@ -19,9 +19,9 @@ class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
         row {
             checkBox("Enabled") // TODO: from resource
                 .bindSelected(model.enabled)
-                .onIsModified { model.enabled.get() != appState.enabled }
-                .onApply { appState.enabled = model.enabled.get() }
-                .onReset { model.enabled.set(appState.enabled) }
+                .onIsModified { model.enabled.get() != appState.fileTypeFontState.enabled }
+                .onApply { appState.fileTypeFontState.enabled = model.enabled.get() }
+                .onReset { model.enabled.set(appState.fileTypeFontState.enabled) }
         }
         row {
             configurableCell(table)
