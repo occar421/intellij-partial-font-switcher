@@ -23,7 +23,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
         initTree()
     }
 
-    override fun getDisplayName(): @NlsContexts.ConfigurableName String? {
+    override fun getDisplayName(): @NlsContexts.ConfigurableName String {
         // TODO from resource
         return "File Type Font"
     }
@@ -96,7 +96,7 @@ private class AddAction(private val masterDetail: FileTypeFontMasterDetail) : An
             row("FileType:") {
                 val list: Collection<FileType> = FileTypeManager.getInstance().registeredFileTypes.toList()
                 // TODO remove duplicated
-                val renderer = ListCellRenderer<FileType?> { list, value, index, isSelected, cellHasFocus ->
+                val renderer = ListCellRenderer<FileType?> { _, value, _, _, _ ->
                     JLabel().apply {
                         text = value?.displayName
                         icon = value?.icon
