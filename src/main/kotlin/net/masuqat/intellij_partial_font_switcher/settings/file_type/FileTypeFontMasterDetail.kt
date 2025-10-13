@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.DialogBuilder
-import com.intellij.openapi.ui.DialogWrapper.createDefaultBorder
 import com.intellij.openapi.ui.MasterDetailsComponent
 import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.NlsContexts
@@ -32,7 +31,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
     override fun createActions(fromPopup: Boolean): List<AnAction> {
         return listOf(
             AddAction(this),
-//            MyDeleteAction(),
+            // TODO delete button
         )
     }
 
@@ -53,7 +52,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
 }
 
 private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater: Runnable) :
-    NamedConfigurable<FileTypeFontProfile>(false, updater) {
+    NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
 
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
