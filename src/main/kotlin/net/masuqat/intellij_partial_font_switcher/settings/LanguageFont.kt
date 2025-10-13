@@ -34,20 +34,13 @@ class LanguageFontTable : UnnamedConfigurable {
     }
 
     override fun apply() {
-        this.appState.languageFonts.clear()
-        this.appState.languageFonts.addAll(model.items.map { m -> LanguageFontSetting(m.language, m.font) })
+        appState.languageFonts.clear()
+        appState.languageFonts.addAll(model.items.map { m -> LanguageFontSetting(m.language, m.font) })
     }
 
     override fun reset() {
-        this.model.items.clear()
-        this.model.items.addAll(this.appState.languageFonts.map { s ->
-            LanguageFontTableModel.LanguageFont(
-                s.language,
-                s.fontName
-            )
-        })
-
-        this.model.fireTableDataChanged()
+        repeat(model.items.size) { model.removeRow(0) }
+        model.addRows(appState.languageFonts.map { s -> LanguageFontTableModel.LanguageFont(s.language, s.fontName) })
     }
 
     private val appState: AppSettings.State
