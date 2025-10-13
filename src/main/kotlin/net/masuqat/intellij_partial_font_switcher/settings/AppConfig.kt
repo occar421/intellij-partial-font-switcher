@@ -16,7 +16,7 @@ class AppConfig : Configurable, Configurable.Beta {
         private val propertyGraph = PropertyGraph()
 
         var enabled = propertyGraph.property(true)
-        var languageFonts = LanguageFontTable()
+        var fileTypeFonts = FileTypeFontTable()
     }
 
     val panel = panel {
@@ -30,12 +30,12 @@ class AppConfig : Configurable, Configurable.Beta {
                 .onReset { model.enabled.set(appState.enabled) }
         }
         row {
-            cell(model.languageFonts.createComponent())
+            cell(model.fileTypeFonts.createComponent())
                 .align(Align.FILL)
                 .enabledIf(model.enabled)
-                .onIsModified { model.languageFonts.isModified }
-                .onApply { model.languageFonts.apply() }
-                .onReset { model.languageFonts.reset() }
+                .onIsModified { model.fileTypeFonts.isModified }
+                .onApply { model.fileTypeFonts.apply() }
+                .onReset { model.fileTypeFonts.reset() }
         }.resizableRow()
     }
 

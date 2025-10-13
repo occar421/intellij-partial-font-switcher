@@ -11,8 +11,8 @@ import com.intellij.openapi.components.Storage
 )
 class AppSettings : PersistentStateComponent<AppSettings.State> {
     object State {
-        var enabled = true
-        var languageFonts = mutableListOf<LanguageFontSetting>()
+        var enabled = true // TODO reorganize
+        var fileTypeFonts = mutableListOf<FileTypeFontSetting>()
     }
 
     var appState = State
@@ -33,4 +33,5 @@ class AppSettings : PersistentStateComponent<AppSettings.State> {
     }
 }
 
-data class LanguageFontSetting(var language: String, var fontName: String)
+// TODO use FileType
+data class FileTypeFontSetting(var fileType: String, var fontName: String)

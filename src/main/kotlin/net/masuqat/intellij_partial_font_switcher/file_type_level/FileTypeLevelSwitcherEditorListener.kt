@@ -1,10 +1,10 @@
-package net.masuqat.intellij_partial_font_switcher.language_level
+package net.masuqat.intellij_partial_font_switcher.file_type_level
 
 import com.intellij.openapi.editor.event.EditorFactoryEvent
 import com.intellij.openapi.editor.event.EditorFactoryListener
 
-class LanguageLevelSwitcherEditorListener : EditorFactoryListener {
+class FileTypeLevelSwitcherEditorListener : EditorFactoryListener {
     override fun editorCreated(event: EditorFactoryEvent) {
-        event.editor.overrideWithLanguageFont()
+        event.editor.overrideWithFileTypeFont()
     }
 }

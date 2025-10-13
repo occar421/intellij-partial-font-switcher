@@ -1,19 +1,19 @@
-package net.masuqat.intellij_partial_font_switcher.language_level
+package net.masuqat.intellij_partial_font_switcher.file_type_level
 
 import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.editor.EditorFactory
 
-class LanguageLevelSwitcherDynamicPluginListener : DynamicPluginListener {
+class FileTypeLevelSwitcherDynamicPluginListener : DynamicPluginListener {
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
         EditorFactory.getInstance().allEditors.forEach {
-            it.overrideWithLanguageFont()
+            it.overrideWithFileTypeFont()
         }
     }
 
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         EditorFactory.getInstance().allEditors.forEach {
-            it.revertLanguageFont()
+            it.revertFileTypeFont()
         }
     }
 }
