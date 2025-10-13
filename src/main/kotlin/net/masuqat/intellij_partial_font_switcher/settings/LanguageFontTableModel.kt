@@ -4,6 +4,8 @@ import com.intellij.openapi.options.UnnamedConfigurable
 import com.intellij.ui.TableUtil
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.table.JBTable
+import net.masuqat.intellij_partial_font_switcher.services.AppSettings
+import net.masuqat.intellij_partial_font_switcher.services.LanguageFontSetting
 import javax.swing.JComponent
 import javax.swing.table.AbstractTableModel
 import javax.swing.table.DefaultTableCellRenderer
@@ -21,17 +23,20 @@ class LanguageFontTableModel() : AbstractTableModel(), UnnamedConfigurable {
     val model = mutableListOf<LanguageFont>()
 
     override fun isModified(): Boolean {
-        return false
-        // TODO("Not yet implemented")
+        if (this.appState.languageFonts.size != this.model.size) return true
+        return this.appState.languageFonts.zip(this.model).any { (setting, model) ->
+            setting.language != model.language || setting.fontName != model.font
+        }
     }
 
     override fun apply() {
-        // TODO("Not yet implemented")
+        this.appState.languageFonts.clear()
+        this.appState.languageFonts.addAll(model.map { m -> LanguageFontSetting(m.language, m.font) })
     }
 
     override fun reset() {
-        // TODO("Not yet implemented")
         this.model.clear()
+        this.model.addAll(this.appState.languageFonts.map { s -> LanguageFont(s.language, s.fontName) })
 
         fireTableDataChanged()
     }
@@ -82,5 +87,6 @@ class LanguageFontTableModel() : AbstractTableModel(), UnnamedConfigurable {
         }
     }
 
-    // TODO appState
+    private val appState: AppSettings.State
+        get() = AppSettings.getInstance()!!.appState
 }
