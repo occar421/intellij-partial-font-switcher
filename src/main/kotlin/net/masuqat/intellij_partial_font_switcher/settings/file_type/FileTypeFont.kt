@@ -1,5 +1,7 @@
 package net.masuqat.intellij_partial_font_switcher.settings.file_type
 
+import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.options.UnnamedConfigurable
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.table.JBTable
@@ -12,7 +14,7 @@ import javax.swing.JComponent
 class FileTypeFontTable : UnnamedConfigurable {
     class Model :
         ListTableModel<Model.FileTypeFont>(FileTypeColumnInfo(), FontColumnInfo()) {
-        data class FileTypeFont(val fileType: String, val font: String) // FIXME use `FileType`
+        data class FileTypeFont(val fileType: FileType, val font: String)
     }
 
     val model = Model()
@@ -25,7 +27,11 @@ class FileTypeFontTable : UnnamedConfigurable {
     override fun createComponent(): JComponent {
         return ToolbarDecorator.createDecorator(table)
             .setAddAction {
-                model.addRow(Model.FileTypeFont("Aiueo", "Impact2"))
+                val fileTypes = FileTypeManager.getInstance().registeredFileTypes.toSet()
+                val configuredFileTypes = model.items.map { it.fileType }.toSet()
+                val availableFileTypes = fileTypes - configuredFileTypes
+
+                model.addRow(Model.FileTypeFont(availableFileTypes.first(), "Impact2"))
             }
             .setRemoveAction {
                 model.removeRow(table.selectedRow)
@@ -55,7 +61,7 @@ class FileTypeFontTable : UnnamedConfigurable {
 }
 
 class FileTypeColumnInfo : ColumnInfo<FileTypeFontTable.Model.FileTypeFont, String>("FileType") { // TODO from resource
-    override fun valueOf(lf: FileTypeFontTable.Model.FileTypeFont?): String? = lf?.fileType
+    override fun valueOf(lf: FileTypeFontTable.Model.FileTypeFont?): String? = lf?.fileType?.displayName
 }
 
 class FontColumnInfo : ColumnInfo<FileTypeFontTable.Model.FileTypeFont, String>("Font") { // TODO from resource

@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import com.intellij.openapi.fileTypes.FileType
 
 @State(
     name = "net.masuqat.intellij_partial_font_switcher.AppSettings",
@@ -37,5 +38,4 @@ class AppSettings : PersistentStateComponent<AppSettings.State> {
     }
 }
 
-// TODO FIXME FileType
-data class FileTypeFont(var fileType: String, var fontName: String)
+data class FileTypeFont(var fileType: FileType, var fontName: String)
