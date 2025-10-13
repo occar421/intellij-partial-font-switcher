@@ -1,4 +1,4 @@
-package net.masuqat.intellij_partial_font_switcher.settings
+package net.masuqat.intellij_partial_font_switcher.settings.file_type
 
 import com.intellij.openapi.options.UnnamedConfigurable
 import com.intellij.ui.ToolbarDecorator

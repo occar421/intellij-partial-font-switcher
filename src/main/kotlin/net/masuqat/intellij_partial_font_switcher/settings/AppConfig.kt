@@ -5,6 +5,7 @@ import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.dsl.builder.*
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
+import net.masuqat.intellij_partial_font_switcher.settings.file_type.FileTypeFontTable
 import javax.swing.JComponent
 
 class AppConfig : Configurable, Configurable.Beta {
