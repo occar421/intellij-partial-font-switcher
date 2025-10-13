@@ -1,6 +1,5 @@
 package net.masuqat.intellij_partial_font_switcher.settings
 
-import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.options.UnnamedConfigurable
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.table.JBTable
@@ -55,17 +54,10 @@ class LanguageFontTable : UnnamedConfigurable {
         get() = AppSettings.getInstance()!!.appState
 }
 
-class FileTypeColumnInfo : ColumnInfo<FileType, String>("FileType") { // TODO from resource
-    override fun valueOf(p0: FileType?): String {
-//        TODO("Not yet implemented")
-        return "TestFileType"
-    }
+class FileTypeColumnInfo : ColumnInfo<LanguageFontTableModel.LanguageFont, String>("FileType") { // TODO from resource
+    override fun valueOf(lf: LanguageFontTableModel.LanguageFont?): String? = lf?.language
 }
 
-class FontColumnInfo : ColumnInfo<String, String>("FontColumn") { // TODO from resource
-    override fun valueOf(p0: String?): String {
-//        TODO("Not yet implemented")
-        return "TestFont"
-    }
-
+class FontColumnInfo : ColumnInfo<LanguageFontTableModel.LanguageFont, String>("FontColumn") { // TODO from resource
+    override fun valueOf(lf: LanguageFontTableModel.LanguageFont?): String? = lf?.font
 }
