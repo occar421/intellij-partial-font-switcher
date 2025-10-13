@@ -5,12 +5,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.DialogBuilder
+import com.intellij.openapi.ui.DialogWrapper.createDefaultBorder
 import com.intellij.openapi.ui.MasterDetailsComponent
 import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.ui.dsl.builder.*
 import com.intellij.util.PlatformIcons
+import com.intellij.util.ui.JBUI
 import com.jetbrains.rd.util.Runnable
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -35,7 +37,8 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
     }
 
     fun addFileTypeFontNode(fileType: FileType) {
-        val fileTypeFontConfigurable = FileTypeFontConfigurable(fileType, TREE_UPDATER)
+        val profile = FileTypeFontProfile(fileType)
+        val fileTypeFontConfigurable = FileTypeFontConfigurable(profile, TREE_UPDATER)
         val node = createFileTypeFontNode(fileTypeFontConfigurable)
 
         addNode(node, myRoot)
@@ -49,34 +52,37 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
     }
 }
 
-private class FileTypeFontConfigurable(val fileType: FileType, updater: Runnable) :
-    NamedConfigurable<FileTypeFontProfile>(true, updater) {
-    override fun setDisplayName(p0: @NlsSafe String?) {
-        TODO("Not yet implemented")
-    }
+private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater: Runnable) :
+    NamedConfigurable<FileTypeFontProfile>(false, updater) {
 
-    override fun getEditableObject(): FileTypeFontProfile? {
-        TODO("Not yet implemented")
-    }
+    override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
-    override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? {
-        TODO("Not yet implemented")
-    }
+    override fun getEditableObject(): FileTypeFontProfile = profile
+
+    override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
 
     override fun createOptionsPanel(): JComponent {
-        return panel { row { label("Hoge") } }
+        return panel {
+            row {
+                label("Hoge")
+                // TODO Font
+            }
+        }.apply {
+            border = JBUI.Borders.empty(0, 10)
+        }
     }
 
-    override fun getDisplayName(): @NlsContexts.ConfigurableName String = fileType.displayName
+    override fun getDisplayName(): @NlsContexts.ConfigurableName String = profile.fileType.displayName
 
-    override fun getIcon(expanded: Boolean): Icon = fileType.icon
+    override fun getIcon(expanded: Boolean): Icon = profile.fileType.icon
 
     override fun isModified(): Boolean {
-        TODO("Not yet implemented")
+//        TODO("Not yet implemented")
+        return false
     }
 
     override fun apply() {
-        TODO("Not yet implemented")
+//        TODO("Not yet implemented")
     }
 
 }
