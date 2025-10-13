@@ -16,7 +16,7 @@ class AppConfig : Configurable, Configurable.Beta {
         private val propertyGraph = PropertyGraph()
 
         var enabled = propertyGraph.property(true)
-        var languageFonts = LanguageFontTableModel()
+        var languageFonts = LanguageFontTable()
     }
 
     val panel = panel {
