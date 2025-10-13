@@ -22,11 +22,8 @@ class AppConfig : Configurable, Configurable.Beta {
     private val panel = panel {
         collapsibleGroup("FileType Level") { // TODO: from resource
             row {
-                cell(fileTypeConfig.createComponent())
+                configurableCell(fileTypeConfig)
                     .align(AlignX.FILL)
-                    .onIsModified { fileTypeConfig.isModified }
-                    .onApply { fileTypeConfig.apply() }
-                    .onReset { fileTypeConfig.reset() }
             }
 
         }.apply {

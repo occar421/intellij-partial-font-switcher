@@ -2,10 +2,9 @@ package net.masuqat.intellij_partial_font_switcher.settings.file_type
 
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.options.UnnamedConfigurable
-import com.intellij.ui.dsl.builder.AlignX
-import com.intellij.ui.dsl.builder.bindSelected
-import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.*
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
+import net.masuqat.intellij_partial_font_switcher.settings.configurableCell
 import javax.swing.JComponent
 
 class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
@@ -25,12 +24,9 @@ class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
                 .onReset { model.enabled.set(appState.enabled) }
         }
         row {
-            cell(table.createComponent())
-                .align(AlignX.FILL)
+            configurableCell(table)
                 .enabledIf(model.enabled)
-                .onIsModified { table.isModified }
-                .onApply { table.apply() }
-                .onReset { table.reset() }
+                .align(AlignX.FILL)
         }.resizableRow()
     }
 
