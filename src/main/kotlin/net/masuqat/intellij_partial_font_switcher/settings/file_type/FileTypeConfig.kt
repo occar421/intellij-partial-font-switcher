@@ -1,0 +1,57 @@
+package net.masuqat.intellij_partial_font_switcher.settings.file_type
+
+import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.openapi.options.UnnamedConfigurable
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.bindSelected
+import com.intellij.ui.dsl.builder.panel
+import net.masuqat.intellij_partial_font_switcher.services.AppSettings
+import javax.swing.JComponent
+
+class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
+    class Model(propertyGraph: PropertyGraph) {
+        val enabled = propertyGraph.property(true)
+        val table = FileTypeFontTable()
+    }
+
+    val model = Model(propertyGraph)
+
+    private val panel = panel {
+        row {
+            checkBox("Enabled") // TODO: from resource
+                .bindSelected(model.enabled)
+                .onIsModified { model.enabled.get() != appState.enabled }
+                .onApply { appState.enabled = model.enabled.get() }
+                .onReset { model.enabled.set(appState.enabled) }
+        }
+        row {
+            cell(model.table.createComponent())
+                .align(AlignX.FILL)
+                .enabledIf(model.enabled)
+                .onIsModified { model.table.isModified }
+                .onApply { model.table.apply() }
+                .onReset { model.table.reset() }
+        }.resizableRow()
+    }
+
+    override fun createComponent(): JComponent {
+        return panel
+    }
+
+    override fun isModified(): Boolean {
+        return panel.isModified()
+    }
+
+    override fun apply() {
+        panel.apply()
+
+        // TODO apply 後にエディタ自体に反映させる
+    }
+
+    override fun reset() {
+        panel.reset()
+    }
+
+    private val appState: AppSettings.State
+        get() = AppSettings.getInstance()!!.appState
+}

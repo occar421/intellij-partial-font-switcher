@@ -4,8 +4,7 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.dsl.builder.*
-import net.masuqat.intellij_partial_font_switcher.services.AppSettings
-import net.masuqat.intellij_partial_font_switcher.settings.file_type.FileTypeFontTable
+import net.masuqat.intellij_partial_font_switcher.settings.file_type.FileTypeConfig
 import javax.swing.JComponent
 
 class AppConfig : Configurable, Configurable.Beta {
@@ -14,30 +13,23 @@ class AppConfig : Configurable, Configurable.Beta {
     }
 
     class Model {
-        private val propertyGraph = PropertyGraph()
-
-        var enabled = propertyGraph.property(true)
-        var fileTypeFonts = FileTypeFontTable()
+        val propertyGraph = PropertyGraph()
     }
 
-    val panel = panel {
-        val model = Model()
+    val model = Model()
+    val fileTypeConfig = FileTypeConfig(model.propertyGraph)
 
-        row {
-            checkBox("Enabled") // TODO: from resource
-                .bindSelected(model.enabled)
-                .onIsModified { model.enabled.get() != appState.enabled }
-                .onApply { appState.enabled = model.enabled.get() }
-                .onReset { model.enabled.set(appState.enabled) }
+    private val panel = panel {
+        collapsibleGroup("FileType Level") { // TODO: from resource
+            row {
+                cell(fileTypeConfig.createComponent())
+                    .align(AlignX.FILL)
+                    .onIsModified { fileTypeConfig.isModified }
+            }
+
+        }.apply {
+            expanded = true
         }
-        row {
-            cell(model.fileTypeFonts.createComponent())
-                .align(Align.FILL)
-                .enabledIf(model.enabled)
-                .onIsModified { model.fileTypeFonts.isModified }
-                .onApply { model.fileTypeFonts.apply() }
-                .onReset { model.fileTypeFonts.reset() }
-        }.resizableRow()
     }
 
     override fun createComponent(): JComponent {
@@ -57,7 +49,4 @@ class AppConfig : Configurable, Configurable.Beta {
     override fun reset() {
         panel.reset()
     }
-
-    private val appState: AppSettings.State
-        get() = AppSettings.getInstance()!!.appState
 }

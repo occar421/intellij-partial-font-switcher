@@ -13,6 +13,7 @@ class FileTypeFontTable : UnnamedConfigurable {
 
     val table = JBTable(model).apply {
         emptyText.text = "No FileType font settings" // TODO from resource
+        visibleRowCount = 5
     }
 
     override fun createComponent(): JComponent {
