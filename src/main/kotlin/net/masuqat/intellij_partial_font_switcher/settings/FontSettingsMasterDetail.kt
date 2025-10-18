@@ -89,7 +89,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
     }
 }
 
-private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater: Runnable) :
+private class FileTypeFontConfigurable(val profile: FileTypeFontProfile, updater: Runnable) :
     com.intellij.openapi.ui.NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
 
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
@@ -109,9 +109,8 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
         }
     }
 
-    val scheme = createPreviewScheme()
-    val fontEditorPreview = FontEditorPreview({ scheme }, true)
-    val fontOptionsPanel = AppFontOptionsPanel(scheme).apply {
+    val fontEditorPreview = FontEditorPreview({ profile.scheme }, true)
+    val fontOptionsPanel = AppFontOptionsPanel(profile.scheme).apply {
         addListener(object : ColorAndFontSettingsListener.Abstract() {
             override fun fontChanged() {
                 updatePreview()
@@ -120,17 +119,10 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
     }
 
     private fun updatePreview() {
-        if (scheme is EditorFontCache) {
-            (scheme as EditorFontCache).reset()
+        if (profile.scheme is EditorFontCache) {
+            (profile.scheme as EditorFontCache).reset()
         }
         fontEditorPreview.updateView()
-    }
-
-    private fun createPreviewScheme(): EditorColorsScheme {
-        val globalScheme = EditorColorsManager.getInstance().globalScheme
-        val scheme = globalScheme.clone() as EditorColorsScheme
-        scheme.fontPreferences = globalScheme.fontPreferences // to be editable
-        return scheme
     }
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String = profile.fileType.displayName
@@ -151,4 +143,13 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
     }
 }
 
-class FileTypeFontProfile(val fileType: FileType)
+class FileTypeFontProfile(val fileType: FileType) {
+    val scheme = createScheme()
+
+    private fun createScheme(): EditorColorsScheme {
+        val globalScheme = EditorColorsManager.getInstance().globalScheme
+        val scheme = globalScheme.clone() as EditorColorsScheme
+        scheme.fontPreferences = globalScheme.fontPreferences // to be editable
+        return scheme
+    }
+}
