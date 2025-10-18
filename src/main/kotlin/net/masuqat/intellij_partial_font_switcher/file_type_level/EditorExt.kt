@@ -4,12 +4,12 @@ import com.intellij.openapi.editor.Editor
 
 val selector = FileTypeFontPreferenceSelector()
 
-fun Editor.overrideWithFileTypeFont() {
+fun Editor.switchFontPreference() {
     if (this.virtualFile != null) {
         this.colorsScheme.fontPreferences = selector.select(this.virtualFile.fileType)
     }
 }
 
-fun Editor.revertFileTypeFont() {
+fun Editor.revertFontPreference() {
     this.colorsScheme.fontPreferences = selector.globalFontPreference
 }

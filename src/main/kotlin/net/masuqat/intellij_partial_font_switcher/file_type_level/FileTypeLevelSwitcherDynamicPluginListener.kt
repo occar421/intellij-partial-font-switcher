@@ -7,13 +7,13 @@ import com.intellij.openapi.editor.EditorFactory
 class FileTypeLevelSwitcherDynamicPluginListener : DynamicPluginListener {
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
         EditorFactory.getInstance().allEditors.forEach {
-            it.overrideWithFileTypeFont()
+            it.switchFontPreference()
         }
     }
 
     override fun beforePluginUnload(pluginDescriptor: IdeaPluginDescriptor, isUpdate: Boolean) {
         EditorFactory.getInstance().allEditors.forEach {
-            it.revertFileTypeFont()
+            it.revertFontPreference()
         }
     }
 }
