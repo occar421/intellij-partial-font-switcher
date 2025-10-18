@@ -1,10 +1,14 @@
 package net.masuqat.intellij_partial_font_switcher.settings
 
-import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.colors.EditorFontCache
 import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.util.NlsContexts
-import com.intellij.ui.dsl.builder.*
+import com.intellij.ui.dsl.builder.bindSelected
+import com.intellij.ui.dsl.builder.panel
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
+import net.masuqat.intellij_partial_font_switcher.file_type_level.switchFontPreference
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import javax.swing.JComponent
 
@@ -47,7 +51,11 @@ class AppConfig : Configurable, Configurable.Beta {
     override fun apply() {
         panel.apply()
 
-        // TODO apply 後にエディタ自体に反映させる
+        EditorFontCache.getInstance().reset()
+        EditorFactory.getInstance().allEditors.forEach {
+            it.switchFontPreference()
+        }
+        EditorFactory.getInstance().refreshAllEditors()
     }
 
     override fun reset() {

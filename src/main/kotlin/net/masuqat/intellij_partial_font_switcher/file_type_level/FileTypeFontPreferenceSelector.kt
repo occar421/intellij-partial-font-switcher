@@ -11,7 +11,8 @@ class FileTypeFontPreferenceSelector {
             return globalFontPreference
         }
 
-        return appState.fileTypeSettings.additional.first { it.fileTypeName == fileType.name }.elementTypeSettings.base.options.fontPreferences
+        return appState.fileTypeSettings.additional.firstOrNull { it.fileTypeName == fileType.name }?.elementTypeSettings?.base?.options?.fontPreferences
+            ?: globalFontPreference
     }
 
     val globalFontPreference: FontPreferences
