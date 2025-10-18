@@ -10,7 +10,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.colors.EditorFontCache
-import com.intellij.openapi.editor.colors.impl.FontPreferencesImpl
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.DialogBuilder
@@ -22,7 +21,6 @@ import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
-import com.jetbrains.rd.framework.base.deepClonePolymorphic
 import com.jetbrains.rd.util.Runnable
 import javax.swing.Icon
 import javax.swing.JComponent
