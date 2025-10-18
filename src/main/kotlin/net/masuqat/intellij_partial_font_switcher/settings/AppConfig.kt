@@ -23,9 +23,9 @@ class AppConfig : Configurable, Configurable.Beta {
         row {
             checkBox(message("config.enable.label"))
                 .bindSelected(model.enabled)
-                .onIsModified { model.enabled.get() != appState.fileTypeFontState.enabled }
-                .onApply { appState.fileTypeFontState.enabled = model.enabled.get() }
-                .onReset { model.enabled.set(appState.fileTypeFontState.enabled) }
+                .onIsModified { model.enabled.get() != appState.enabled }
+                .onApply { appState.enabled = model.enabled.get() }
+                .onReset { model.enabled.set(appState.enabled) }
         }
         separator()
         row {
