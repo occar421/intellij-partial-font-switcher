@@ -99,18 +99,19 @@ class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsSt
     override fun reset() {
         myRoot.removeAllChildren()
 
-        resetFileTypeNode(state.base)
-        state.additional.forEach { resetFileTypeNode(it) }
+        val profile = FileTypeFontProfile(state.base.fileTypeName, FontProfile.createInitialScheme()) // Do not insert preference to follow global font
+        val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, state.base, TREE_UPDATER))
+        myRoot.add(baseNode)
+
+        state.additional.forEach {
+            val profile = FileTypeFontProfile(
+                it.fileTypeName, FontProfile.createInitialScheme().apply {
+                    fontPreferences = it.elementTypeSettings.base.options.fontPreferences
+                })
+            val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, it, TREE_UPDATER))
+            myRoot.add(baseNode)
+        }
 
         super.reset()
-    }
-
-    private fun resetFileTypeNode(fileTypeSettingState: AppSettings.FileTypeSettingState) {
-        val profile = FileTypeFontProfile(
-            fileTypeSettingState.fileTypeName, FontProfile.createInitialScheme().apply {
-                fontPreferences = fileTypeSettingState.elementTypeSettings.base.options.fontPreferences
-            })
-        val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, fileTypeSettingState, TREE_UPDATER))
-        myRoot.add(baseNode)
     }
 }
