@@ -1,10 +1,14 @@
 package net.masuqat.intellij_partial_font_switcher.settings.file_type
 
+import com.intellij.application.options.colors.ColorAndFontSettingsListener
+import com.intellij.application.options.colors.FontEditorPreview
 import com.intellij.application.options.editor.fonts.AppFontOptionsPanel
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
-import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
+import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.openapi.editor.colors.EditorFontCache
+import com.intellij.openapi.editor.colors.impl.FontPreferencesImpl
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.DialogBuilder
@@ -12,7 +16,10 @@ import com.intellij.openapi.ui.MasterDetailsComponent
 import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.util.NlsSafe
-import com.intellij.ui.dsl.builder.*
+import com.intellij.ui.JBSplitter
+import com.intellij.ui.dsl.builder.bindItem
+import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
 import com.jetbrains.rd.util.Runnable
 import javax.swing.Icon
@@ -93,10 +100,37 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
     override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
 
     override fun createOptionsPanel(): JComponent {
-        val scheme =
-            EditorColorsSchemeImpl(DefaultColorsScheme())// FIXME import from another class
+        return panel {
+            row {
+                cell(JBSplitter(false, 0.3f).apply {
+                    firstComponent = fontOptionsPanel
+                    secondComponent = fontEditorPreview.panel
+                })
+            }
+        }
+    }
 
-        return AppFontOptionsPanel(scheme)
+    val scheme = createPreviewScheme() // FIXME import from another class
+    val fontEditorPreview = FontEditorPreview({ scheme }, true)
+    val fontOptionsPanel = AppFontOptionsPanel(scheme).apply {
+        addListener(object : ColorAndFontSettingsListener.Abstract() {
+            override fun fontChanged() {
+                updatePreview()
+            }
+        })
+    }
+
+    private fun updatePreview() {
+        if (scheme is EditorFontCache) {
+            (scheme as EditorFontCache).reset()
+        }
+        fontEditorPreview.updateView()
+    }
+
+    private fun createPreviewScheme(): EditorColorsScheme {
+        val scheme = EditorColorsManager.getInstance().schemeForCurrentUITheme.clone() as EditorColorsScheme
+        scheme.fontPreferences = FontPreferencesImpl()
+        return scheme
     }
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String = profile.fileType.displayName
@@ -112,6 +146,9 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
 //        TODO("Not yet implemented")
     }
 
+    override fun disposeUIResources() {
+        fontEditorPreview.disposeUIResources()
+    }
 }
 
 class FileTypeFontProfile(val fileType: FileType)
