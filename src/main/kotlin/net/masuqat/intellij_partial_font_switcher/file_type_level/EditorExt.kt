@@ -2,17 +2,14 @@ package net.masuqat.intellij_partial_font_switcher.file_type_level
 
 import com.intellij.openapi.editor.Editor
 
-val fontSelector = FileTypeFontSelector()
-
-// TODO 適切なフォントの指定を考える
-// TODO AppState （設定）を参照する
+val selector = FileTypeFontPreferenceSelector()
 
 fun Editor.overrideWithFileTypeFont() {
     if (this.virtualFile != null) {
-        this.colorsScheme.editorFontName = fontSelector.select(this.virtualFile.fileType)
+        this.colorsScheme.fontPreferences = selector.select(this.virtualFile.fileType)
     }
 }
 
 fun Editor.revertFileTypeFont() {
-    this.colorsScheme.editorFontName = fontSelector.defaultFontName
+    this.colorsScheme.fontPreferences = selector.globalFontPreference
 }
