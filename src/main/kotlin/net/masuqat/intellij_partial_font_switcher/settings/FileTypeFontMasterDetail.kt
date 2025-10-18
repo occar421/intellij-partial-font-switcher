@@ -85,7 +85,7 @@ class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsSt
     override fun apply() {
         val fileTypeProfiles = myRoot.children().asSequence().map { it as FileTypeFontNode }.map { it.configurable }
         val groups = fileTypeProfiles.groupBy { it.profile.isBaseProfile }
-//        groups[true]?.forEach { appState.fileTypeSettings.base }
+
         state.additional = groups[false]?.map {
             AppSettings.FileTypeSettingState(it.profile.fileTypeName, AppSettings.ElementTypeSettingsState().apply {
                 base = AppSettings.ElementTypeSettingState(
@@ -94,12 +94,17 @@ class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsSt
                     })
             })
         }?.toCollection(mutableListOf()) ?: mutableListOf()
+
+        reset()
     }
 
     override fun reset() {
         myRoot.removeAllChildren()
 
-        val profile = FileTypeFontProfile(state.base.fileTypeName, FontProfile.createInitialScheme()) // Do not insert preference to follow global font
+        val profile = FileTypeFontProfile(
+            state.base.fileTypeName,
+            FontProfile.createInitialScheme() // Do not insert preference to follow global font
+        )
         val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, state.base, TREE_UPDATER))
         myRoot.add(baseNode)
 
