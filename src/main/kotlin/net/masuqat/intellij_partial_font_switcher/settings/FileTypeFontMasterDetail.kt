@@ -64,24 +64,24 @@ class FileTypeFontMasterDetail(private val fileTypeSettingsState: AppSettings.Fi
 
     private fun addNewFileTypeNode(fileType: FileType) {
         val profile = FileTypeFontProfile(fileType.name)
-        val fileTypeFontConfigurable =
+        val configurable =
             FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
-        val node = FileTypeFontNode(fileTypeFontConfigurable)
+        val node = FontNode(configurable)
 
         addNode(node, myRoot)
         selectNodeInTree(node)
     }
 
-    class FileTypeFontNode(val configurable: FileTypeFontConfigurable) : MyNode(configurable) {
+    class FontNode(val configurable: FontConfigurable) : MyNode(configurable) {
         override fun getLocationString(): String = message("config.setting.location.label")
     }
 
     override fun isModified(): Boolean {
-        return myRoot.children().asSequence().map { it as FileTypeFontNode }.any { it.configurable.isModified }
+        return myRoot.children().asSequence().map { it as FontNode }.any { it.configurable.isModified }
     }
 
     override fun apply() {
-        myRoot.children().asSequence().map { it as FileTypeFontNode }.forEach { it.configurable.apply() }
+        myRoot.children().asSequence().map { it as FontNode }.forEach { it.configurable.apply() }
     }
 
     override fun reset() {
@@ -95,7 +95,7 @@ class FileTypeFontMasterDetail(private val fileTypeSettingsState: AppSettings.Fi
 
     private fun resetFileTypeNode(settingState: AppSettings.FileTypeSettingState) {
         val profile = FileTypeFontProfile(settingState.fileTypeName)
-        val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, settingState, TREE_UPDATER))
+        val baseNode = FontNode(FileTypeFontConfigurable(profile, settingState, TREE_UPDATER))
         myRoot.add(baseNode)
     }
 }

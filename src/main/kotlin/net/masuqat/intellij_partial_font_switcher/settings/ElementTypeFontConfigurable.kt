@@ -11,7 +11,7 @@ class ElementTypeFontConfigurable(
     val profile: ElementTypeFontProfile,
     private val elementTypeSettingState: AppSettings.ElementTypeSettingState,
     updater: Runnable
-) : FontConfigurable(profile, updater) {
+) : FontConfigurable(profile, true, updater) {
     val elementTypeMap = IElementType.enumerate { true }.associateBy { it.toString() }
 
     override fun getEditableObject(): ElementTypeFontProfile = profile

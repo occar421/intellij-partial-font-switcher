@@ -13,7 +13,7 @@ import com.intellij.ui.JBSplitter
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 
-abstract class FontConfigurable(private val profile: FontProfile, updater: Runnable) :
+abstract class FontConfigurable(private val profile: FontProfile, private val editable: Boolean, updater: Runnable) :
     NamedConfigurable<FontProfile>(false, updater) {
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
@@ -30,8 +30,11 @@ abstract class FontConfigurable(private val profile: FontProfile, updater: Runna
         }
     }
 
-    protected val fontEditorPreview = FontEditorPreview({ profile.scheme }, true)
-    protected val fontOptionsPanel = AppFontOptionsPanel(profile.scheme).apply {
+    protected val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
+    protected val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
+        override fun isReadOnly(): Boolean = !editable
+        override fun isEnabled(): Boolean = !editable
+    }.apply {
         addListener(object : ColorAndFontSettingsListener.Abstract() {
             override fun fontChanged() {
                 updatePreview()
