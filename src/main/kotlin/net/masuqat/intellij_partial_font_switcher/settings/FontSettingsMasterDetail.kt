@@ -22,6 +22,7 @@ import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
+import com.jetbrains.rd.framework.base.deepClonePolymorphic
 import com.jetbrains.rd.util.Runnable
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -112,7 +113,7 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
         }
     }
 
-    val scheme = createPreviewScheme() // FIXME import from another class
+    val scheme = createPreviewScheme()
     val fontEditorPreview = FontEditorPreview({ scheme }, true)
     val fontOptionsPanel = AppFontOptionsPanel(scheme).apply {
         addListener(object : ColorAndFontSettingsListener.Abstract() {
@@ -130,8 +131,9 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
     }
 
     private fun createPreviewScheme(): EditorColorsScheme {
-        val scheme = EditorColorsManager.getInstance().schemeForCurrentUITheme.clone() as EditorColorsScheme
-        scheme.fontPreferences = FontPreferencesImpl()
+        val globalScheme = EditorColorsManager.getInstance().globalScheme
+        val scheme = globalScheme.clone() as EditorColorsScheme
+        scheme.fontPreferences = globalScheme.fontPreferences // to be editable
         return scheme
     }
 
