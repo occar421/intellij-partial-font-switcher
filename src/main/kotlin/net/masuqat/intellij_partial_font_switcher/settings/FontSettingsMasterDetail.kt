@@ -24,12 +24,14 @@ import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
 import com.jetbrains.rd.util.Runnable
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
+import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.ListCellRenderer
 
-class FileTypeFontMasterDetail : MasterDetailsComponent() {
+class FileTypeFontMasterDetail(private val fileTypeSettingsState: AppSettings.FileTypeSettingsState) :
+    MasterDetailsComponent() {
     init {
         initTree()
         // TODO enlist "Default" for element type config
@@ -90,8 +92,12 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
     }
 }
 
-private class FileTypeFontConfigurable(val profile: FileTypeFontProfile, updater: Runnable) :
-    NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
+private class FileTypeFontConfigurable(
+    val profile: FileTypeFontProfile,
+    private val fileTypeSettingState: AppSettings.FileTypeSettingState,
+    updater: Runnable
+) : NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
+    val fileTypeMap = FileTypeManager.getInstance().registeredFileTypes.associateBy { it.name }
 
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
@@ -126,9 +132,10 @@ private class FileTypeFontConfigurable(val profile: FileTypeFontProfile, updater
         fontEditorPreview.updateView()
     }
 
-    override fun getDisplayName(): @NlsContexts.ConfigurableName String = profile.fileType.displayName
+    override fun getDisplayName(): @NlsContexts.ConfigurableName String =
+        fileTypeMap[profile.fileTypeName]?.displayName ?: profile.fileTypeName
 
-    override fun getIcon(expanded: Boolean): Icon = profile.fileType.icon
+    override fun getIcon(expanded: Boolean): Icon? = fileTypeMap[profile.fileTypeName]?.icon
 
     override fun isModified(): Boolean {
 //        TODO("Not yet implemented")
@@ -144,7 +151,7 @@ private class FileTypeFontConfigurable(val profile: FileTypeFontProfile, updater
     }
 }
 
-class FileTypeFontProfile(val fileType: FileType) {
+class FileTypeFontProfile(val fileTypeName: String) {
     val scheme = createScheme()
 
     private fun createScheme(): EditorColorsScheme {

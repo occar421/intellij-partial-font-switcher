@@ -8,7 +8,6 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.editor.colors.FontPreferences
 import com.intellij.openapi.editor.colors.impl.AppEditorFontOptions
 import com.intellij.openapi.editor.colors.impl.AppFontOptions
-import com.intellij.openapi.fileTypes.FileType
 
 @State(
     name = "net.masuqat.intellij_partial_font_switcher.AppSettings",
@@ -36,11 +35,15 @@ class AppSettings : PersistentStateComponent<AppSettings.RootState> {
     }
 
     class FileTypeSettingsState {
-        var base = FileTypeSettingState()
+        var base = FileTypeSettingState(BASE_FILE_TYPE_NAME)
         var additional = mutableListOf<FileTypeSettingState>()
+
+        companion object {
+            const val BASE_FILE_TYPE_NAME = "Base"
+        }
     }
 
-    class FileTypeSettingState(var fileType: FileType? = null) {
+    class FileTypeSettingState(var fileTypeName: String) {
         var elementTypeSettings = ElementTypeSettingsState()
     }
 

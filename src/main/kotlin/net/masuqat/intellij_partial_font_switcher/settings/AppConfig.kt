@@ -17,7 +17,7 @@ class AppConfig : Configurable, Configurable.Beta {
     }
 
     val model = Model()
-    val masterDetail = FileTypeFontMasterDetail()
+    val masterDetail = FileTypeFontMasterDetail(appState.fileTypeSettings)
 
     private val panel = panel {
         row {
@@ -54,6 +54,6 @@ class AppConfig : Configurable, Configurable.Beta {
         panel.reset()
     }
 
-    private val appState: AppSettings.State
+    private val appState: AppSettings.RootState
         get() = AppSettings.getInstance()!!.appState
 }
