@@ -14,6 +14,7 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.openapi.ui.MasterDetailsComponent
+import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.ui.JBSplitter
@@ -90,7 +91,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
 }
 
 private class FileTypeFontConfigurable(val profile: FileTypeFontProfile, updater: Runnable) :
-    com.intellij.openapi.ui.NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
+    NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
 
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
