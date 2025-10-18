@@ -24,6 +24,9 @@ class AppSettings : PersistentStateComponent<AppSettings.RootState> {
 
     companion object {
         fun getInstance(): AppSettings? = ApplicationManager.getApplication().getService(AppSettings::class.java)
+
+        const val BASE_FILE_TYPE_NAME = "Base"
+        const val BASE_ELEMENT_TYPE_NAME = "Base"
     }
 
     override fun getState(): RootState {
@@ -37,10 +40,6 @@ class AppSettings : PersistentStateComponent<AppSettings.RootState> {
     class FileTypeSettingsState {
         var base = FileTypeSettingState(BASE_FILE_TYPE_NAME)
         var additional = mutableListOf<FileTypeSettingState>()
-
-        companion object {
-            const val BASE_FILE_TYPE_NAME = "Base"
-        }
     }
 
     class FileTypeSettingState(var fileTypeName: String) {
@@ -48,11 +47,11 @@ class AppSettings : PersistentStateComponent<AppSettings.RootState> {
     }
 
     class ElementTypeSettingsState {
-        var base = ElementTypeSettingState()
+        var base = ElementTypeSettingState(BASE_ELEMENT_TYPE_NAME)
         var additional = mutableListOf<ElementTypeSettingState>()
     }
 
-    class ElementTypeSettingState {
+    class ElementTypeSettingState(var elementTypeName: String) {
         var options = SwitcherFontOptions()
     }
 }
