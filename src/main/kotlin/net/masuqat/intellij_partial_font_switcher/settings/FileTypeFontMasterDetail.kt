@@ -13,11 +13,11 @@ import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
+import net.masuqat.intellij_partial_font_switcher.services.SwitcherFontOptions
 import javax.swing.JLabel
 import javax.swing.ListCellRenderer
 
-class FileTypeFontMasterDetail(private val fileTypeSettingsState: AppSettings.FileTypeSettingsState) :
-    MasterDetailsComponent() {
+class FileTypeFontMasterDetail(private val appState: AppSettings.RootState) : MasterDetailsComponent() {
     init {
         initTree()
 
@@ -63,39 +63,53 @@ class FileTypeFontMasterDetail(private val fileTypeSettingsState: AppSettings.Fi
     }
 
     private fun addNewFileTypeNode(fileType: FileType) {
-        val profile = FileTypeFontProfile(fileType.name)
-        val configurable =
-            FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
-        val node = FontNode(configurable)
+        val profile = FileTypeFontProfile(fileType.name, FontProfile.createInitialScheme())
+        val configurable = FileTypeFontConfigurable(profile, appState, TREE_UPDATER)
+        val node = FileTypeFontNode(configurable)
 
         addNode(node, myRoot)
         selectNodeInTree(node)
     }
 
-    class FontNode(val configurable: FontConfigurable) : MyNode(configurable) {
+    abstract class FontNode(configurable: FontConfigurable) : MyNode(configurable) {
         override fun getLocationString(): String = message("config.setting.location.label")
     }
+
+    class FileTypeFontNode(val configurable: FileTypeFontConfigurable) : FontNode(configurable)
 
     override fun isModified(): Boolean {
         return myRoot.children().asSequence().map { it as FontNode }.any { it.configurable.isModified }
     }
 
     override fun apply() {
-        myRoot.children().asSequence().map { it as FontNode }.forEach { it.configurable.apply() }
+        val fileTypeProfiles = myRoot.children().asSequence().map { it as FileTypeFontNode }.map { it.configurable }
+        val groups = fileTypeProfiles.groupBy { it.profile.isBaseProfile }
+//        groups[true]?.forEach { appState.fileTypeSettings.base }
+        appState.fileTypeSettings.additional = groups[false]?.map {
+            AppSettings.FileTypeSettingState(it.profile.fileTypeName, AppSettings.ElementTypeSettingsState().apply {
+                base = AppSettings.ElementTypeSettingState(
+                    AppSettings.BASE_ELEMENT_TYPE_NAME, SwitcherFontOptions().apply {
+                        update(it.profile.scheme.fontPreferences)
+                    })
+            })
+        }?.toCollection(mutableListOf()) ?: mutableListOf()
     }
 
     override fun reset() {
         myRoot.removeAllChildren()
 
-        resetFileTypeNode(fileTypeSettingsState.base)
-        fileTypeSettingsState.additional.forEach { resetFileTypeNode(it) }
+        resetFileTypeNode(appState.fileTypeSettings.base)
+        appState.fileTypeSettings.additional.forEach { resetFileTypeNode(it) }
 
         super.reset()
     }
 
-    private fun resetFileTypeNode(settingState: AppSettings.FileTypeSettingState) {
-        val profile = FileTypeFontProfile(settingState.fileTypeName)
-        val baseNode = FontNode(FileTypeFontConfigurable(profile, settingState, TREE_UPDATER))
+    private fun resetFileTypeNode(fileTypeSettingState: AppSettings.FileTypeSettingState) {
+        val profile = FileTypeFontProfile(
+            fileTypeSettingState.fileTypeName, FontProfile.createInitialScheme().apply {
+                fontPreferences = fileTypeSettingState.elementTypeSettings.base.options.fontPreferences
+            })
+        val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, appState, TREE_UPDATER))
         myRoot.add(baseNode)
     }
 }

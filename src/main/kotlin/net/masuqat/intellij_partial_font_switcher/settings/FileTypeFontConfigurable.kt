@@ -10,10 +10,10 @@ import javax.swing.Icon
 
 class FileTypeFontConfigurable(
     val profile: FileTypeFontProfile,
-    private val fileTypeSettingState: AppSettings.FileTypeSettingState,
+    private val appState: AppSettings.RootState,
     updater: Runnable
 ) : FontConfigurable(profile, !profile.isBaseProfile, updater) {
-    val fileTypeMap = FileTypeManager.getInstance().registeredFileTypes.associateBy { it.name }
+    private val fileTypeMap = FileTypeManager.getInstance().registeredFileTypes.associateBy { it.name }
 
     override fun getEditableObject(): FileTypeFontProfile = profile
 
@@ -27,7 +27,7 @@ class FileTypeFontConfigurable(
             return false
         }
 
-        return fileTypeSettingState.elementTypeSettings.base.options.fontPreferences != profile.scheme.fontPreferences
+        return appState.fileTypeSettings.base.elementTypeSettings.base.options.fontPreferences != profile.scheme.fontPreferences
     }
 
     override fun apply() {
@@ -35,6 +35,6 @@ class FileTypeFontConfigurable(
             return
         }
 
-        TODO("Not yet implemented")
+//        TODO("Not yet implemented")
     }
 }

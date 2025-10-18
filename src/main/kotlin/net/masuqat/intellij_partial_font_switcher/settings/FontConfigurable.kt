@@ -13,8 +13,10 @@ import com.intellij.ui.JBSplitter
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 
-abstract class FontConfigurable(private val profile: FontProfile, private val editable: Boolean, updater: Runnable) :
+abstract class FontConfigurable(profile: FontProfile, private val editable: Boolean, updater: Runnable) :
     NamedConfigurable<FontProfile>(false, updater) {
+    val scheme = profile.scheme
+
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
     override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
@@ -30,8 +32,8 @@ abstract class FontConfigurable(private val profile: FontProfile, private val ed
         }
     }
 
-    protected val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
-    protected val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
+    protected val fontEditorPreview = FontEditorPreview({ scheme }, editable)
+    protected val fontOptionsPanel = object : AppFontOptionsPanel(scheme) {
         override fun isReadOnly(): Boolean = !editable
         override fun isEnabled(): Boolean = !editable
     }.apply {
@@ -43,8 +45,8 @@ abstract class FontConfigurable(private val profile: FontProfile, private val ed
     }
 
     private fun updatePreview() {
-        if (profile.scheme is EditorFontCache) {
-            (profile.scheme as EditorFontCache).reset()
+        if (scheme is EditorFontCache) {
+            (scheme as EditorFontCache).reset()
         }
         fontEditorPreview.updateView()
     }

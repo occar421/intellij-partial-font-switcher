@@ -42,18 +42,20 @@ class AppSettings : PersistentStateComponent<AppSettings.RootState> {
         var additional = mutableListOf<FileTypeSettingState>()
     }
 
-    class FileTypeSettingState(var fileTypeName: String) {
-        var elementTypeSettings = ElementTypeSettingsState()
-    }
+    class FileTypeSettingState(
+        var fileTypeName: String,
+        var elementTypeSettings: ElementTypeSettingsState = ElementTypeSettingsState()
+    )
 
     class ElementTypeSettingsState {
         var base = ElementTypeSettingState(BASE_ELEMENT_TYPE_NAME)
         var additional = mutableListOf<ElementTypeSettingState>()
     }
 
-    class ElementTypeSettingState(var elementTypeName: String) {
-        var options = SwitcherFontOptions()
-    }
+    class ElementTypeSettingState(
+        var elementTypeName: String,
+        var options: SwitcherFontOptions = SwitcherFontOptions()
+    )
 }
 
 class SwitcherFontOptions : AppFontOptions<AppEditorFontOptions.PersistentFontPreferences>() {

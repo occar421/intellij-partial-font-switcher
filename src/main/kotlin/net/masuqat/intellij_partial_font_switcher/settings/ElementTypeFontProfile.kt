@@ -1,3 +1,5 @@
 package net.masuqat.intellij_partial_font_switcher.settings
 
-class ElementTypeFontProfile(val elementTypeName: String) : FontProfile()
+import com.intellij.openapi.editor.colors.EditorColorsScheme
+
+class ElementTypeFontProfile(val elementTypeName: String, scheme: EditorColorsScheme) : FontProfile(scheme)
