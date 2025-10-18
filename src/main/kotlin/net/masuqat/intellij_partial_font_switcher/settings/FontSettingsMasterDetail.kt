@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package net.masuqat.intellij_partial_font_switcher.settings
 
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
