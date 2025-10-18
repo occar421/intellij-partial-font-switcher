@@ -42,40 +42,39 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
 
     override fun createActions(fromPopup: Boolean): List<AnAction> {
         return listOf(
-            addAction,
+            createAddAction(),
             // TODO delete button
         )
     }
 
-    val addAction: AnAction
-        get() {
-            return object : AnAction(PlatformIcons.ADD_ICON) { /* AddAction */
-                var selectedFileType = FileTypeManager.getInstance().registeredFileTypes.first()!!
+    private fun createAddAction(): AnAction {
+        return object : AnAction(PlatformIcons.ADD_ICON) { /* AddAction */
+            var selectedFileType = FileTypeManager.getInstance().registeredFileTypes.first()!!
 
-                override fun actionPerformed(e: AnActionEvent) {
-                    val dialog = DialogBuilder(e.project).centerPanel(panel {
-                        row("FileType:") {
-                            val list: Collection<FileType> = FileTypeManager.getInstance().registeredFileTypes.toList()
-                            // TODO remove duplicated
-                            val renderer = ListCellRenderer<FileType?> { _, value, _, _, _ ->
-                                JLabel().apply {
-                                    text = value?.displayName
-                                    icon = value?.icon
-                                }
+            override fun actionPerformed(e: AnActionEvent) {
+                val dialog = DialogBuilder(e.project).centerPanel(panel {
+                    row("FileType:") {
+                        val list: Collection<FileType> = FileTypeManager.getInstance().registeredFileTypes.toList()
+                        // TODO remove duplicated
+                        val renderer = ListCellRenderer<FileType?> { _, value, _, _, _ ->
+                            JLabel().apply {
+                                text = value?.displayName
+                                icon = value?.icon
                             }
-
-                            comboBox(list, renderer).bindItem(::selectedFileType.toNullableProperty())
                         }
-                    }).apply {
-                        title("Add File Type Font") // TODO from resource
-                    }
 
-                    if (dialog.showAndGet()) {
-                        addFileTypeFontNode(selectedFileType)
+                        comboBox(list, renderer).bindItem(::selectedFileType.toNullableProperty())
                     }
+                }).apply {
+                    title("Add File Type Font") // TODO from resource
+                }
+
+                if (dialog.showAndGet()) {
+                    addFileTypeFontNode(selectedFileType)
                 }
             }
         }
+    }
 
     fun addFileTypeFontNode(fileType: FileType) {
         val profile = FileTypeFontProfile(fileType)
