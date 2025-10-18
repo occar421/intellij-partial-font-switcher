@@ -30,6 +30,7 @@ import javax.swing.ListCellRenderer
 class FileTypeFontMasterDetail : MasterDetailsComponent() {
     init {
         initTree()
+        // TODO enlist "Default" for element type config
     }
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String {

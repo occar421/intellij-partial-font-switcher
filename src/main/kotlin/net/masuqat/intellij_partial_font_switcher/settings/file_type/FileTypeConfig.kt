@@ -14,7 +14,6 @@ class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
 
     val model = Model(propertyGraph)
     val masterDetail = FileTypeFontMasterDetail()
-    val table = FileTypeFontTable()
 
     private val panel = panel {
         row {
@@ -26,11 +25,6 @@ class FileTypeConfig(propertyGraph: PropertyGraph) : UnnamedConfigurable {
         }
         row {
             configurableCell(masterDetail)
-                .enabledIf(model.enabled)
-                .align(AlignX.FILL)
-        }
-        row {
-            configurableCell(table)
                 .enabledIf(model.enabled)
                 .align(AlignX.FILL)
         }.resizableRow()
