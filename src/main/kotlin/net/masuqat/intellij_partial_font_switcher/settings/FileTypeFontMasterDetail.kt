@@ -94,7 +94,7 @@ class FileTypeFontMasterDetail(private val fileTypeSettingsState: AppSettings.Fi
     }
 
     private fun resetFileTypeNode(settingState: AppSettings.FileTypeSettingState) {
-        val profile = FileTypeFontProfile(settingState.fileTypeName);
+        val profile = FileTypeFontProfile(settingState.fileTypeName)
         val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, settingState, TREE_UPDATER))
         myRoot.add(baseNode)
     }
