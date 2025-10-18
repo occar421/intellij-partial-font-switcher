@@ -1,7 +1,10 @@
 package net.masuqat.intellij_partial_font_switcher.settings.file_type
 
+import com.intellij.application.options.editor.fonts.AppFontOptionsPanel
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.editor.colors.impl.DefaultColorsScheme
+import com.intellij.openapi.editor.colors.impl.EditorColorsSchemeImpl
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.DialogBuilder
@@ -11,7 +14,6 @@ import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.ui.dsl.builder.*
 import com.intellij.util.PlatformIcons
-import com.intellij.util.ui.JBUI
 import com.jetbrains.rd.util.Runnable
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -91,14 +93,10 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
     override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
 
     override fun createOptionsPanel(): JComponent {
-        return panel {
-            row {
-                label("Hoge")
-                // TODO Font
-            }
-        }.apply {
-            border = JBUI.Borders.empty(0, 10)
-        }
+        val scheme =
+            EditorColorsSchemeImpl(DefaultColorsScheme())// FIXME import from another class
+
+        return AppFontOptionsPanel(scheme)
     }
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String = profile.fileType.displayName
