@@ -30,8 +30,10 @@ class AppConfig : Configurable, Configurable.Beta {
         }
         separator()
         row {
-            configurableCell(masterDetail)
-                .align(AlignX.FILL)
+            cell(masterDetail.createComponent())
+                .onIsModified { masterDetail.isModified }
+                .onApply { masterDetail.apply() }
+                .onReset { masterDetail.reset() }
         }
     }
 
