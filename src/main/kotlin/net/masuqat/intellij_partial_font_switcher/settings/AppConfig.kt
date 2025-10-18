@@ -4,13 +4,12 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.dsl.builder.*
+import net.masuqat.intellij_partial_font_switcher.Bundle
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import javax.swing.JComponent
 
 class AppConfig : Configurable, Configurable.Beta {
-    override fun getDisplayName(): @NlsContexts.ConfigurableName String {
-        return "Partial Font Switcher" // TODO: from resource
-    }
+    override fun getDisplayName(): @NlsContexts.ConfigurableName String = Bundle.message("plugin.name")
 
     class Model {
         val propertyGraph = PropertyGraph()
