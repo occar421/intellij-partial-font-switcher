@@ -22,6 +22,7 @@ import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
 import com.jetbrains.rd.util.Runnable
+import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -34,10 +35,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
         // TODO tree view for element type config
     }
 
-    override fun getDisplayName(): @NlsContexts.ConfigurableName String {
-        // TODO from resource
-        return "File Type Font"
-    }
+    override fun getDisplayName(): @NlsContexts.ConfigurableName String = message("config.setting.title")
 
     override fun createActions(fromPopup: Boolean): List<AnAction> {
         return listOf(
@@ -52,7 +50,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
 
             override fun actionPerformed(e: AnActionEvent) {
                 val dialog = DialogBuilder(e.project).centerPanel(panel {
-                    row("FileType:") {
+                    row(message("config.action.add_file_type_setting.label")) {
                         val list: Collection<FileType> = FileTypeManager.getInstance().registeredFileTypes.toList()
                         // TODO remove duplicated
                         val renderer = ListCellRenderer<FileType?> { _, value, _, _, _ ->
@@ -65,7 +63,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
                         comboBox(list, renderer).bindItem(::selectedFileType.toNullableProperty())
                     }
                 }).apply {
-                    title("Add File Type Font") // TODO from resource
+                    title(message("config.action.add_file_type_setting.title"))
                 }
 
                 if (dialog.showAndGet()) {
@@ -86,7 +84,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
 
     private fun createFileTypeFontNode(configurable: FileTypeFontConfigurable): MyNode {
         return object : MyNode(configurable) {
-            override fun getLocationString(): String = "" // TODO from resource
+            override fun getLocationString(): String = message("config.setting.location.label")
         }
     }
 }
