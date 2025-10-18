@@ -4,7 +4,7 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.dsl.builder.*
-import net.masuqat.intellij_partial_font_switcher.settings.file_type.FileTypeConfig
+import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import javax.swing.JComponent
 
 class AppConfig : Configurable, Configurable.Beta {
@@ -14,20 +14,24 @@ class AppConfig : Configurable, Configurable.Beta {
 
     class Model {
         val propertyGraph = PropertyGraph()
+        val enabled = propertyGraph.property(true)
     }
 
     val model = Model()
-    val fileTypeConfig = FileTypeConfig(model.propertyGraph)
+    val masterDetail = FileTypeFontMasterDetail()
 
     private val panel = panel {
-        collapsibleGroup("FileType Level") { // TODO: from resource
-            row {
-                configurableCell(fileTypeConfig)
-                    .align(AlignX.FILL)
-            }
-
-        }.apply {
-            expanded = true
+        row {
+            checkBox("Enabled") // TODO: from resource
+                .bindSelected(model.enabled)
+                .onIsModified { model.enabled.get() != appState.fileTypeFontState.enabled }
+                .onApply { appState.fileTypeFontState.enabled = model.enabled.get() }
+                .onReset { model.enabled.set(appState.fileTypeFontState.enabled) }
+        }
+        separator()
+        row {
+            configurableCell(masterDetail)
+                .align(AlignX.FILL)
         }
     }
 
@@ -48,4 +52,7 @@ class AppConfig : Configurable, Configurable.Beta {
     override fun reset() {
         panel.reset()
     }
+
+    private val appState: AppSettings.State
+        get() = AppSettings.getInstance()!!.appState
 }

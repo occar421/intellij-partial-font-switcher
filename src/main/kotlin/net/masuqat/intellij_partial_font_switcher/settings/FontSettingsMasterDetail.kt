@@ -1,4 +1,4 @@
-package net.masuqat.intellij_partial_font_switcher.settings.file_type
+package net.masuqat.intellij_partial_font_switcher.settings
 
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
 import com.intellij.application.options.colors.FontEditorPreview
@@ -13,7 +13,6 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.openapi.ui.MasterDetailsComponent
-import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.ui.JBSplitter
@@ -31,6 +30,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
     init {
         initTree()
         // TODO enlist "Default" for element type config
+        // TODO tree view for element type config
     }
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String {
@@ -92,7 +92,7 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
 }
 
 private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater: Runnable) :
-    NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
+    com.intellij.openapi.ui.NamedConfigurable<FileTypeFontProfile>(false, updater) { // TODO FileType change combobox
 
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
