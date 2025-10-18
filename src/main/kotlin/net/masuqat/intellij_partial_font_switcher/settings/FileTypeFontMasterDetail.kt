@@ -17,7 +17,7 @@ import net.masuqat.intellij_partial_font_switcher.services.SwitcherFontOptions
 import javax.swing.JLabel
 import javax.swing.ListCellRenderer
 
-class FileTypeFontMasterDetail(private val appState: AppSettings.RootState) : MasterDetailsComponent() {
+class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsState) : MasterDetailsComponent() {
     init {
         initTree()
 
@@ -64,7 +64,8 @@ class FileTypeFontMasterDetail(private val appState: AppSettings.RootState) : Ma
 
     private fun addNewFileTypeNode(fileType: FileType) {
         val profile = FileTypeFontProfile(fileType.name, FontProfile.createInitialScheme())
-        val configurable = FileTypeFontConfigurable(profile, appState, TREE_UPDATER)
+        val configurable =
+            FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
         val node = FileTypeFontNode(configurable)
 
         addNode(node, myRoot)
@@ -85,7 +86,7 @@ class FileTypeFontMasterDetail(private val appState: AppSettings.RootState) : Ma
         val fileTypeProfiles = myRoot.children().asSequence().map { it as FileTypeFontNode }.map { it.configurable }
         val groups = fileTypeProfiles.groupBy { it.profile.isBaseProfile }
 //        groups[true]?.forEach { appState.fileTypeSettings.base }
-        appState.fileTypeSettings.additional = groups[false]?.map {
+        state.additional = groups[false]?.map {
             AppSettings.FileTypeSettingState(it.profile.fileTypeName, AppSettings.ElementTypeSettingsState().apply {
                 base = AppSettings.ElementTypeSettingState(
                     AppSettings.BASE_ELEMENT_TYPE_NAME, SwitcherFontOptions().apply {
@@ -98,8 +99,8 @@ class FileTypeFontMasterDetail(private val appState: AppSettings.RootState) : Ma
     override fun reset() {
         myRoot.removeAllChildren()
 
-        resetFileTypeNode(appState.fileTypeSettings.base)
-        appState.fileTypeSettings.additional.forEach { resetFileTypeNode(it) }
+        resetFileTypeNode(state.base)
+        state.additional.forEach { resetFileTypeNode(it) }
 
         super.reset()
     }
@@ -109,7 +110,7 @@ class FileTypeFontMasterDetail(private val appState: AppSettings.RootState) : Ma
             fileTypeSettingState.fileTypeName, FontProfile.createInitialScheme().apply {
                 fontPreferences = fileTypeSettingState.elementTypeSettings.base.options.fontPreferences
             })
-        val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, appState, TREE_UPDATER))
+        val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, fileTypeSettingState, TREE_UPDATER))
         myRoot.add(baseNode)
     }
 }
