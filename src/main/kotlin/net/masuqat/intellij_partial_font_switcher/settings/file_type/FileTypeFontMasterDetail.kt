@@ -30,10 +30,40 @@ class FileTypeFontMasterDetail : MasterDetailsComponent() {
 
     override fun createActions(fromPopup: Boolean): List<AnAction> {
         return listOf(
-            AddAction(this),
+            addAction,
             // TODO delete button
         )
     }
+
+    val addAction: AnAction
+        get() {
+            return object : AnAction(PlatformIcons.ADD_ICON) { /* AddAction */
+                var selectedFileType = FileTypeManager.getInstance().registeredFileTypes.first()!!
+
+                override fun actionPerformed(e: AnActionEvent) {
+                    val dialog = DialogBuilder(e.project).centerPanel(panel {
+                        row("FileType:") {
+                            val list: Collection<FileType> = FileTypeManager.getInstance().registeredFileTypes.toList()
+                            // TODO remove duplicated
+                            val renderer = ListCellRenderer<FileType?> { _, value, _, _, _ ->
+                                JLabel().apply {
+                                    text = value?.displayName
+                                    icon = value?.icon
+                                }
+                            }
+
+                            comboBox(list, renderer).bindItem(::selectedFileType.toNullableProperty())
+                        }
+                    }).apply {
+                        title("Add File Type Font") // TODO from resource
+                    }
+
+                    if (dialog.showAndGet()) {
+                        addFileTypeFontNode(selectedFileType)
+                    }
+                }
+            }
+        }
 
     fun addFileTypeFontNode(fileType: FileType) {
         val profile = FileTypeFontProfile(fileType)
@@ -87,30 +117,3 @@ private class FileTypeFontConfigurable(var profile: FileTypeFontProfile, updater
 }
 
 class FileTypeFontProfile(val fileType: FileType)
-
-private class AddAction(private val masterDetail: FileTypeFontMasterDetail) : AnAction(PlatformIcons.ADD_ICON) {
-    var selectedFileType = FileTypeManager.getInstance().registeredFileTypes.first()!!
-
-    override fun actionPerformed(e: AnActionEvent) {
-        val dialog = DialogBuilder(e.project).centerPanel(panel {
-            row("FileType:") {
-                val list: Collection<FileType> = FileTypeManager.getInstance().registeredFileTypes.toList()
-                // TODO remove duplicated
-                val renderer = ListCellRenderer<FileType?> { _, value, _, _, _ ->
-                    JLabel().apply {
-                        text = value?.displayName
-                        icon = value?.icon
-                    }
-                }
-
-                comboBox(list, renderer).bindItem(::selectedFileType.toNullableProperty())
-            }
-        }).apply {
-            title("Add File Type Font") // TODO from resource
-        }
-
-        if (dialog.showAndGet()) {
-            masterDetail.addFileTypeFontNode(selectedFileType)
-        }
-    }
-}
