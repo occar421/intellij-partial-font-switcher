@@ -37,30 +37,16 @@ class SwitcherMasterDetail(
     }
 
     private fun createAddAction(): AnAction {
+        val fileTypeMap = FileTypeManager.getInstance().registeredFileTypes.associateBy { it.name }
+        val allFileNames = fileTypeMap.keys.toSet()
+
         return object : AnAction(PlatformIcons.ADD_ICON) { /* AddAction */
-            var selectedFileType = FileTypeManager.getInstance().registeredFileTypes.first()!!
-
             override fun actionPerformed(e: AnActionEvent) {
-                val dialog = DialogBuilder(e.project).centerPanel(panel {
-                    row(message("config.action.add_file_type_setting.label")) {
-                        val list: Collection<FileType> = FileTypeManager.getInstance().registeredFileTypes.toList()
-                        // TODO remove duplicated
-                        val renderer = ListCellRenderer<FileType?> { _, value, _, _, _ ->
-                            JLabel().apply {
-                                text = value?.displayName
-                                icon = value?.icon
-                            }
-                        }
+                val existingFileNames = myRoot.children().asSequence().filterIsInstance<FileTypeSwitcherNode>()
+                    .map { it.configurable.profile.fileTypeName.get() }.toSet()
+                val fileNameToAdd = (allFileNames - existingFileNames).firstOrNull()
 
-                        comboBox(list, renderer).bindItem(::selectedFileType.toNullableProperty())
-                    }
-                }).apply {
-                    title(message("config.action.add_file_type_setting.title"))
-                }
-
-                if (dialog.showAndGet()) {
-                    addNewFileTypeNode(selectedFileType)
-                }
+                fileTypeMap[fileNameToAdd]?.let { addNewFileTypeNode(it) }
             }
         }
     }
