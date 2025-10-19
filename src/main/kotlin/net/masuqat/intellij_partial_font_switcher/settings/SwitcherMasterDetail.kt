@@ -13,7 +13,6 @@ import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
-import net.masuqat.intellij_partial_font_switcher.services.SwitcherFontOptions
 import java.util.Comparator
 import javax.swing.JLabel
 import javax.swing.ListCellRenderer
@@ -115,7 +114,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
         state.additional = groups[false]?.map {
             AppSettings.FileTypeSettingState(it.profile.fileTypeName, AppSettings.ElementTypeSettingsState().apply {
                 base = AppSettings.ElementTypeSettingState(
-                    AppSettings.BASE_ELEMENT_TYPE_NAME, SwitcherFontOptions().apply {
+                    AppSettings.BASE_ELEMENT_TYPE_NAME, AppSettings.SwitcherFontOptions().apply {
                         update(it.profile.scheme.fontPreferences)
                     })
             })

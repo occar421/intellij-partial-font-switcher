@@ -56,9 +56,9 @@ class AppSettings : PersistentStateComponent<AppSettings.RootState> {
         var elementTypeName: String,
         var options: SwitcherFontOptions = SwitcherFontOptions()
     )
-}
 
-class SwitcherFontOptions : AppFontOptions<AppEditorFontOptions.PersistentFontPreferences>() {
-    override fun createFontState(p0: FontPreferences): AppEditorFontOptions.PersistentFontPreferences =
-        AppEditorFontOptions.PersistentFontPreferences(fontPreferences)
+    class SwitcherFontOptions : AppFontOptions<AppEditorFontOptions.PersistentFontPreferences>() {
+        override fun createFontState(p0: FontPreferences): AppEditorFontOptions.PersistentFontPreferences =
+            AppEditorFontOptions.PersistentFontPreferences(fontPreferences)
+    }
 }
