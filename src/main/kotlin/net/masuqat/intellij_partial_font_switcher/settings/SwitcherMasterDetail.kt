@@ -102,11 +102,13 @@ class SwitcherMasterDetail(
         selectNodeInTree(node)
     }
 
-    abstract class SwitcherNode(configurable: FontConfigurable) : MyNode(configurable) {
-        override fun getLocationString(): String = message("config.setting.location.label")
+    abstract class SwitcherNode(open val configurable: FontConfigurable) : MyNode(configurable) {
+        override fun getLocationString(): String =
+            if (configurable.profile.enabled.get()) message("config.setting.location.enabled.label")
+            else message("config.setting.location.disabled.label")
     }
 
-    class FileTypeSwitcherNode(val configurable: FileTypeFontConfigurable) : SwitcherNode(configurable) {
+    class FileTypeSwitcherNode(override val configurable: FileTypeFontConfigurable) : SwitcherNode(configurable) {
         override fun getLocationString(): String =
             if (configurable.profile.isBaseProfile) message("config.setting.base.location.label")
             else super.getLocationString()
