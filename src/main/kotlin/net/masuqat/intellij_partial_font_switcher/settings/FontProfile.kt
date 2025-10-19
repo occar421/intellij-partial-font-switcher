@@ -3,7 +3,7 @@ package net.masuqat.intellij_partial_font_switcher.settings
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 
-abstract class FontProfile(val scheme: EditorColorsScheme) {
+abstract class FontProfile(val enabled: Boolean, val scheme: EditorColorsScheme) {
     companion object {
         fun createInitialScheme(): EditorColorsScheme {
             val globalScheme = EditorColorsManager.getInstance().globalScheme

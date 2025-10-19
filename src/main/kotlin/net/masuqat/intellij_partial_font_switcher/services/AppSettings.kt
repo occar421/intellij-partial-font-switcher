@@ -44,6 +44,7 @@ class AppSettings : PersistentStateComponent<AppSettings.RootState> {
 
     class FileTypeSettingState(
         var fileTypeName: String,
+        var enabled: Boolean = true,
         var elementTypeSettings: ElementTypeSettingsState = ElementTypeSettingsState()
     )
 
