@@ -26,8 +26,8 @@ abstract class FontConfigurable(private val editable: Boolean, updater: Runnable
     override fun createOptionsPanel(): JComponent {
         val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
         val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
-            override fun isReadOnly(): Boolean = !editable
-            override fun isEnabled(): Boolean = !editable
+            override fun isReadOnly(): Boolean = !editable || !profile.enabled.get()
+            override fun isEnabled(): Boolean = editable && profile.enabled.get()
         }.apply {
             addListener(object : ColorAndFontSettingsListener.Abstract() {
                 override fun fontChanged() {
@@ -37,9 +37,19 @@ abstract class FontConfigurable(private val editable: Boolean, updater: Runnable
                     fontEditorPreview.updateView()
                 }
             })
+
+            profile.enabled.afterChange {
+                updateOptionsList()
+            }
         }
 
         return panel {
+            row {
+                checkBox(message("config.setting.enable.label"))
+                    .bindSelected(profile.enabled)
+                    .enabled(editable)
+            }
+            separator()
             row {
                 cell(JBSplitter(false, 0.3f).apply {
                     firstComponent = fontOptionsPanel
