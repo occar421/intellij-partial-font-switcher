@@ -66,7 +66,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
         return object : MyDeleteAction() {
             val deletable: Boolean
                 get() = when (val node = selectedNode) {
-                    is FileTypeFontNode -> !node.configurable.profile.isBaseProfile
+                    is FileTypeSwitcherNode -> !node.configurable.profile.isBaseProfile
                     else -> true
                 }
 
@@ -91,28 +91,28 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
         val profile = FileTypeFontProfile(fileType.name, FontProfile.createInitialScheme())
         val configurable =
             FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
-        val node = FileTypeFontNode(configurable)
+        val node = FileTypeSwitcherNode(configurable)
 
         addNode(node, myRoot)
         selectNodeInTree(node)
     }
 
-    abstract class FontNode(configurable: FontConfigurable) : MyNode(configurable) {
+    abstract class SwitcherNode(configurable: FontConfigurable) : MyNode(configurable) {
         override fun getLocationString(): String = message("config.setting.location.label")
     }
 
-    class FileTypeFontNode(val configurable: FileTypeFontConfigurable) : FontNode(configurable) {
+    class FileTypeSwitcherNode(val configurable: FileTypeFontConfigurable) : SwitcherNode(configurable) {
         override fun getLocationString(): String =
             if (configurable.profile.isBaseProfile) message("config.setting.base.location.label")
             else super.getLocationString()
     }
 
     override fun isModified(): Boolean {
-        return myRoot.children().asSequence().map { it as FontNode }.any { it.configurable.isModified }
+        return myRoot.children().asSequence().map { it as SwitcherNode }.any { it.configurable.isModified }
     }
 
     override fun apply() {
-        val fileTypeProfiles = myRoot.children().asSequence().map { it as FileTypeFontNode }.map { it.configurable }
+        val fileTypeProfiles = myRoot.children().asSequence().map { it as FileTypeSwitcherNode }.map { it.configurable }
         val groups = fileTypeProfiles.groupBy { it.profile.isBaseProfile }
 
         state.additional = groups[false]?.map {
@@ -134,7 +134,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
             state.base.fileTypeName,
             FontProfile.createInitialScheme() // Do not insert preference to follow global font
         )
-        val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, state.base, TREE_UPDATER))
+        val baseNode = FileTypeSwitcherNode(FileTypeFontConfigurable(profile, state.base, TREE_UPDATER))
         myRoot.add(baseNode)
 
         state.additional.forEach {
@@ -142,7 +142,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
                 it.fileTypeName, FontProfile.createInitialScheme().apply {
                     fontPreferences = it.elementTypeSettings.base.options.fontPreferences
                 })
-            val baseNode = FileTypeFontNode(FileTypeFontConfigurable(profile, it, TREE_UPDATER))
+            val baseNode = FileTypeSwitcherNode(FileTypeFontConfigurable(profile, it, TREE_UPDATER))
             myRoot.add(baseNode)
         }
 
@@ -151,7 +151,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
 
     override fun getNodeComparator(): Comparator<MyNode> =
         kotlin.Comparator { o1, o2 ->
-            if (o1 is FileTypeFontNode && o2 is FileTypeFontNode) when {
+            if (o1 is FileTypeSwitcherNode && o2 is FileTypeSwitcherNode) when {
                 o1.configurable.profile.isBaseProfile -> -1
                 o2.configurable.profile.isBaseProfile -> 1
                 else -> super.nodeComparator.compare(o1, o2)
