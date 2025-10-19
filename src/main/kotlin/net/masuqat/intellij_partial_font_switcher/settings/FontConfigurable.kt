@@ -50,8 +50,4 @@ abstract class FontConfigurable(profile: FontProfile, private val editable: Bool
         }
         fontEditorPreview.updateView()
     }
-
-    override fun disposeUIResources() {
-        fontEditorPreview.disposeUIResources()
-    }
 }
