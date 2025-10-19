@@ -18,7 +18,7 @@ import java.util.Comparator
 import javax.swing.JLabel
 import javax.swing.ListCellRenderer
 
-class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsState) : MasterDetailsComponent() {
+class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState) : MasterDetailsComponent() {
     init {
         initTree()
 
