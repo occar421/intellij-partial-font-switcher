@@ -5,6 +5,7 @@ package net.masuqat.intellij_partial_font_switcher.settings
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.util.NlsContexts
 import com.jetbrains.rd.util.Runnable
+import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import javax.swing.Icon
 
@@ -18,7 +19,8 @@ class FileTypeFontConfigurable(
     override fun getEditableObject(): FileTypeFontProfile = profile
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String =
-        fileTypeMap[profile.fileTypeName]?.displayName ?: profile.fileTypeName
+        if (profile.isBaseProfile) message("config.setting.base.label")
+        else fileTypeMap[profile.fileTypeName]?.displayName ?: profile.fileTypeName
 
     override fun getIcon(expanded: Boolean): Icon? = fileTypeMap[profile.fileTypeName]?.icon
 
