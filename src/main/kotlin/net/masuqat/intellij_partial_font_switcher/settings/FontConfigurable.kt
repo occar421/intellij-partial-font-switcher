@@ -23,6 +23,8 @@ abstract class FontConfigurable(private val editable: Boolean, updater: Runnable
 
     override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
 
+    abstract fun getTypeSelectorComponent(): JComponent
+
     override fun createOptionsPanel(): JComponent {
         val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
         val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
@@ -44,6 +46,9 @@ abstract class FontConfigurable(private val editable: Boolean, updater: Runnable
         }
 
         return panel {
+            row {
+                cell(getTypeSelectorComponent())
+            }
             row {
                 checkBox(message("config.setting.enable.label"))
                     .bindSelected(profile.enabled)
