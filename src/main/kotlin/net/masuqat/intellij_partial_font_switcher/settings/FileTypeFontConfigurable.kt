@@ -13,7 +13,7 @@ class FileTypeFontConfigurable(
     override val profile: FileTypeFontProfile,
     private val state: AppSettings.FileTypeSettingState,
     updater: Runnable
-) : FontConfigurable(profile, !profile.isBaseProfile, updater) {
+) : FontConfigurable(!profile.isBaseProfile, updater) {
     private val fileTypeMap = FileTypeManager.getInstance().registeredFileTypes.associateBy { it.name }
 
     override fun getEditableObject(): FileTypeFontProfile = profile

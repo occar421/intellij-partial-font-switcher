@@ -13,13 +13,30 @@ import com.intellij.ui.JBSplitter
 import com.intellij.ui.dsl.builder.panel
 import javax.swing.JComponent
 
-abstract class FontConfigurable(open val profile: FontProfile, private val editable: Boolean, updater: Runnable) :
+abstract class FontConfigurable(private val editable: Boolean, updater: Runnable) :
     NamedConfigurable<FontProfile>(false, updater) {
+    abstract val profile: FontProfile
+
     override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
 
     override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
 
     override fun createOptionsPanel(): JComponent {
+        val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
+        val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
+            override fun isReadOnly(): Boolean = !editable
+            override fun isEnabled(): Boolean = !editable
+        }.apply {
+            addListener(object : ColorAndFontSettingsListener.Abstract() {
+                override fun fontChanged() {
+                    if (profile.scheme is EditorFontCache) {
+                        (profile.scheme as EditorFontCache).reset()
+                    }
+                    fontEditorPreview.updateView()
+                }
+            })
+        }
+
         return panel {
             row {
                 cell(JBSplitter(false, 0.3f).apply {
@@ -28,24 +45,5 @@ abstract class FontConfigurable(open val profile: FontProfile, private val edita
                 })
             }
         }
-    }
-
-    protected val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
-    protected val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
-        override fun isReadOnly(): Boolean = !editable
-        override fun isEnabled(): Boolean = !editable
-    }.apply {
-        addListener(object : ColorAndFontSettingsListener.Abstract() {
-            override fun fontChanged() {
-                updatePreview()
-            }
-        })
-    }
-
-    private fun updatePreview() {
-        if (profile.scheme is EditorFontCache) {
-            (profile.scheme as EditorFontCache).reset()
-        }
-        fontEditorPreview.updateView()
     }
 }

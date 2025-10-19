@@ -6,10 +6,8 @@ import com.intellij.openapi.util.NlsContexts
 import com.intellij.psi.tree.IElementType
 import com.jetbrains.rd.util.Runnable
 
-class ElementTypeFontConfigurable(
-    override val profile: ElementTypeFontProfile,
-    updater: Runnable
-) : FontConfigurable(profile, true, updater) {
+class ElementTypeFontConfigurable(override val profile: ElementTypeFontProfile, updater: Runnable) :
+    FontConfigurable(true, updater) {
     val elementTypeMap = IElementType.enumerate { true }.associateBy { it.toString() }
 
     override fun getEditableObject(): ElementTypeFontProfile = profile
