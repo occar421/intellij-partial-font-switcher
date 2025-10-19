@@ -34,7 +34,11 @@ class FileTypeFontConfigurable(
             return panel { }
         }
 
-        val comboBox = ComboBox(fileTypeMap.keys.toTypedArray()).apply {
+        val allFileNames = fileTypeMap.keys.toSet()
+        val existingFileNames = profile.existingFileNames.getter.call().toSet()
+        val availableFileTypes = allFileNames - existingFileNames + setOf(profile.fileTypeName.get())
+
+        val comboBox = ComboBox(availableFileTypes.sortedBy { fileTypeMap[it]?.displayName }.toTypedArray()).apply {
             renderer = SimpleListCellRenderer.create { label, value, _ ->
                 label.text = fileTypeMap[value]?.displayName ?: value
                 label.icon = fileTypeMap[value]?.icon

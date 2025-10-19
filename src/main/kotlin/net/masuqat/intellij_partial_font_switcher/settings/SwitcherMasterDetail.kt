@@ -5,18 +5,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.observable.properties.PropertyGraph
-import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.openapi.ui.MasterDetailsComponent
 import com.intellij.openapi.util.NlsContexts
-import com.intellij.ui.dsl.builder.bindItem
-import com.intellij.ui.dsl.builder.panel
-import com.intellij.ui.dsl.builder.toNullableProperty
 import com.intellij.util.PlatformIcons
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import java.util.Comparator
-import javax.swing.JLabel
-import javax.swing.ListCellRenderer
 
 class SwitcherMasterDetail(
     private val state: AppSettings.FileTypeSettingsState, private val propertyGraph: PropertyGraph
@@ -28,6 +22,14 @@ class SwitcherMasterDetail(
     }
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String = message("config.setting.title")
+
+    val allFileTypeSwitcherNodes: Sequence<FileTypeSwitcherNode>
+        get() = myRoot.children().asSequence().filterIsInstance<FileTypeSwitcherNode>()
+    val allFileTypeConfigurables: Sequence<FileTypeFontConfigurable>
+        get() = allFileTypeSwitcherNodes.map { it.configurable }
+    val existingFileNames: Sequence<String>
+        get() = allFileTypeConfigurables.map { it.profile.fileTypeName.get() }
+
 
     override fun createActions(fromPopup: Boolean): List<AnAction> {
         return listOf(
@@ -42,9 +44,8 @@ class SwitcherMasterDetail(
 
         return object : AnAction(PlatformIcons.ADD_ICON) { /* AddAction */
             override fun actionPerformed(e: AnActionEvent) {
-                val existingFileNames = myRoot.children().asSequence().filterIsInstance<FileTypeSwitcherNode>()
-                    .map { it.configurable.profile.fileTypeName.get() }.toSet()
-                val fileNameToAdd = (allFileNames - existingFileNames).firstOrNull()
+                val fileNameToAdd =
+                    (allFileNames - existingFileNames.toSet()).sortedBy { fileTypeMap[it]?.displayName }.firstOrNull()
 
                 fileTypeMap[fileNameToAdd]?.let { addNewFileTypeNode(it) }
             }
@@ -75,10 +76,12 @@ class SwitcherMasterDetail(
         }
     }
 
-
     private fun addNewFileTypeNode(fileType: FileType) {
         val profile = FileTypeFontProfile(
-            propertyGraph.property(fileType.name), propertyGraph.property(true), FontProfile.createInitialScheme()
+            propertyGraph.property(fileType.name),
+            propertyGraph.property(true),
+            ::existingFileNames,
+            FontProfile.createInitialScheme()
         )
         val configurable =
             FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
@@ -101,12 +104,11 @@ class SwitcherMasterDetail(
     }
 
     override fun isModified(): Boolean {
-        return myRoot.children().asSequence().map { it as SwitcherNode }.any { it.configurable.isModified }
+        return allFileTypeConfigurables.any { it.isModified }
     }
 
     override fun apply() {
-        val fileTypeProfiles = myRoot.children().asSequence().map { it as FileTypeSwitcherNode }.map { it.configurable }
-        val groups = fileTypeProfiles.groupBy { it.profile.isBaseProfile }
+        val groups = allFileTypeConfigurables.groupBy { it.profile.isBaseProfile }
 
         state.additional = groups[false]?.map {
             AppSettings.FileTypeSettingState(
@@ -127,6 +129,7 @@ class SwitcherMasterDetail(
         val profile = FileTypeFontProfile(
             propertyGraph.property(state.base.fileTypeName),
             propertyGraph.property(state.base.enabled),
+            ::existingFileNames,
             FontProfile.createInitialScheme() // Do not insert preference to follow global font
         )
         val baseNode = FileTypeSwitcherNode(FileTypeFontConfigurable(profile, state.base, TREE_UPDATER))
@@ -136,6 +139,7 @@ class SwitcherMasterDetail(
             val profile = FileTypeFontProfile(
                 propertyGraph.property(it.fileTypeName),
                 propertyGraph.property(it.enabled),
+                ::existingFileNames,
                 FontProfile.createInitialScheme().apply {
                     fontPreferences = it.elementTypeSettings.base.options.fontPreferences
                 })
