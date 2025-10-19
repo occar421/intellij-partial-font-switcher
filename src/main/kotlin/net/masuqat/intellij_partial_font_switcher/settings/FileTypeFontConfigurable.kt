@@ -6,7 +6,6 @@ import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.util.NlsContexts
 import com.jetbrains.rd.util.Runnable
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
-import net.masuqat.intellij_partial_font_switcher.services.SwitcherFontOptions
 import javax.swing.Icon
 
 class FileTypeFontConfigurable(
