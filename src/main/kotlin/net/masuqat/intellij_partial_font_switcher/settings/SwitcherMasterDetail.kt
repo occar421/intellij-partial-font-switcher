@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.fileTypes.FileTypeManager
+import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.ui.DialogBuilder
 import com.intellij.openapi.ui.MasterDetailsComponent
 import com.intellij.openapi.util.NlsContexts
@@ -17,7 +18,10 @@ import java.util.Comparator
 import javax.swing.JLabel
 import javax.swing.ListCellRenderer
 
-class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState) : MasterDetailsComponent() {
+class SwitcherMasterDetail(
+    private val state: AppSettings.FileTypeSettingsState,
+    private val propertyGraph: PropertyGraph
+) : MasterDetailsComponent() {
     init {
         initTree()
 
@@ -88,7 +92,8 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
 
 
     private fun addNewFileTypeNode(fileType: FileType) {
-        val profile = FileTypeFontProfile(fileType.name, true, FontProfile.createInitialScheme())
+        val profile =
+            FileTypeFontProfile(fileType.name, propertyGraph.property(true), FontProfile.createInitialScheme())
         val configurable =
             FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
         val node = FileTypeSwitcherNode(configurable)
@@ -118,7 +123,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
         state.additional = groups[false]?.map {
             AppSettings.FileTypeSettingState(
                 it.profile.fileTypeName,
-                it.profile.enabled,
+                it.profile.enabled.get(),
                 AppSettings.ElementTypeSettingsState().apply {
                     base = AppSettings.ElementTypeSettingState(
                         AppSettings.BASE_ELEMENT_TYPE_NAME, AppSettings.SwitcherFontOptions().apply {
@@ -135,7 +140,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
 
         val profile = FileTypeFontProfile(
             state.base.fileTypeName,
-            true,
+            propertyGraph.property(state.base.enabled),
             FontProfile.createInitialScheme() // Do not insert preference to follow global font
         )
         val baseNode = FileTypeSwitcherNode(FileTypeFontConfigurable(profile, state.base, TREE_UPDATER))
@@ -144,7 +149,7 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
         state.additional.forEach {
             val profile = FileTypeFontProfile(
                 it.fileTypeName,
-                it.enabled,
+                propertyGraph.property(it.enabled),
                 FontProfile.createInitialScheme().apply {
                     fontPreferences = it.elementTypeSettings.base.options.fontPreferences
                 })

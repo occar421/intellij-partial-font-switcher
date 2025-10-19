@@ -21,7 +21,7 @@ class AppConfig : Configurable, Configurable.Beta {
     }
 
     val model = Model()
-    val masterDetail = SwitcherMasterDetail(appState.fileTypeSettings)
+    val masterDetail = SwitcherMasterDetail(appState.fileTypeSettings, model.propertyGraph)
 
     private val panel = panel {
         row {
