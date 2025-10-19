@@ -112,6 +112,10 @@ class SwitcherMasterDetail(
         override fun getIcon(expanded: Boolean): Icon? = fileTypeMap[configurable.profile.fileTypeName.get()]?.icon
 
         override fun isDisplayInBold(): Boolean = configurable.isModified
+
+        init {
+            configurable.profile.fileTypeName.afterChange { configurable.updateTree.run() }
+        }
     }
 
     override fun isModified(): Boolean {

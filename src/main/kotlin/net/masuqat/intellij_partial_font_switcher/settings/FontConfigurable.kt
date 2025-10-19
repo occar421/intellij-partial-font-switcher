@@ -17,8 +17,8 @@ import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import javax.swing.Icon
 import javax.swing.JComponent
 
-abstract class FontConfigurable(private val editable: Boolean, updater: Runnable) :
-    NamedConfigurable<FontProfile>(false, updater) {
+abstract class FontConfigurable(private val editable: Boolean, val updateTree: Runnable) :
+    NamedConfigurable<FontProfile>(false, updateTree) {
     abstract val profile: FontProfile
 
     final override fun setDisplayName(p0: @NlsSafe String?) {} // noop

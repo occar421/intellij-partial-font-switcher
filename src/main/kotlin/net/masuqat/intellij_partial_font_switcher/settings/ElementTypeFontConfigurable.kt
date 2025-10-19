@@ -5,8 +5,8 @@ package net.masuqat.intellij_partial_font_switcher.settings
 import com.jetbrains.rd.util.Runnable
 import javax.swing.JComponent
 
-class ElementTypeFontConfigurable(override val profile: ElementTypeFontProfile, updater: Runnable) :
-    FontConfigurable(true, updater) {
+class ElementTypeFontConfigurable(override val profile: ElementTypeFontProfile, updateTree: Runnable) :
+    FontConfigurable(true, updateTree) {
     override fun getEditableObject(): ElementTypeFontProfile = profile
 
     override fun getTypeSelectorComponent(): JComponent {

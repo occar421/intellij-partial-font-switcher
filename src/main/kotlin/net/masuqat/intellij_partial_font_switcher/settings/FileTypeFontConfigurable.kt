@@ -5,7 +5,6 @@ package net.masuqat.intellij_partial_font_switcher.settings
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.SimpleListCellRenderer
-import com.intellij.ui.components.JBLabel
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
 import com.jetbrains.rd.util.Runnable
@@ -16,8 +15,8 @@ import javax.swing.JComponent
 class FileTypeFontConfigurable(
     override val profile: FileTypeFontProfile,
     private val state: AppSettings.FileTypeSettingState,
-    updater: Runnable
-) : FontConfigurable(!profile.isBaseProfile, updater) {
+    updateTree: Runnable
+) : FontConfigurable(!profile.isBaseProfile, updateTree) {
     private val fileTypeMap = FileTypeManager.getInstance().registeredFileTypes.associateBy { it.name }
 
     override fun getEditableObject(): FileTypeFontProfile = profile
