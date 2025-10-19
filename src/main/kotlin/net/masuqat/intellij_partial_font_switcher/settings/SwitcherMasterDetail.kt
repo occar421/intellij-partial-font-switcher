@@ -52,6 +52,21 @@ class SwitcherMasterDetail(
         }
     }
 
+    private fun addNewFileTypeNode(fileType: FileType) {
+        val profile = FileTypeFontProfile(
+            propertyGraph.property(fileType.name),
+            propertyGraph.property(true),
+            ::existingFileNames,
+            FontProfile.createInitialScheme()
+        )
+        val configurable =
+            FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
+        val node = FileTypeSwitcherNode(configurable)
+
+        addNode(node, myRoot)
+        selectNodeInTree(node)
+    }
+
     private fun createDeleteAction(): AnAction {
         return object : MyDeleteAction() {
             val deletable: Boolean
@@ -76,21 +91,6 @@ class SwitcherMasterDetail(
         }
     }
 
-    private fun addNewFileTypeNode(fileType: FileType) {
-        val profile = FileTypeFontProfile(
-            propertyGraph.property(fileType.name),
-            propertyGraph.property(true),
-            ::existingFileNames,
-            FontProfile.createInitialScheme()
-        )
-        val configurable =
-            FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
-        val node = FileTypeSwitcherNode(configurable)
-
-        addNode(node, myRoot)
-        selectNodeInTree(node)
-    }
-
     abstract class SwitcherNode(open val configurable: FontConfigurable) : MyNode(configurable) {
         override fun getLocationString(): String =
             if (configurable.profile.enabled.get()) message("config.setting.location.enabled.label")
@@ -104,7 +104,7 @@ class SwitcherMasterDetail(
     }
 
     override fun isModified(): Boolean {
-        return allFileTypeConfigurables.any { it.isModified }
+        return allFileTypeConfigurables.any { it.isModified } // FIXME bug after delete
     }
 
     override fun apply() {
