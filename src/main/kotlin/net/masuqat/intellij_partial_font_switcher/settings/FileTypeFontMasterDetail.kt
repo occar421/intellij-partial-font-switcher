@@ -29,7 +29,7 @@ class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsSt
     override fun createActions(fromPopup: Boolean): List<AnAction> {
         return listOf(
             createAddAction(),
-            // TODO delete button
+            createDeleteAction(),
         )
     }
 
@@ -58,6 +58,30 @@ class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsSt
                 if (dialog.showAndGet()) {
                     addNewFileTypeNode(selectedFileType)
                 }
+            }
+        }
+    }
+
+    private fun createDeleteAction(): AnAction {
+        return object : MyDeleteAction() {
+            val deletable: Boolean
+                get() = when (val node = selectedNode) {
+                    is FileTypeFontNode -> !node.configurable.profile.isBaseProfile
+                    else -> true
+                }
+
+            override fun update(e: AnActionEvent) {
+                super.update(e)
+
+                e.presentation.isEnabled = e.presentation.isEnabled && deletable
+            }
+
+            override fun actionPerformed(e: AnActionEvent) {
+                if (!deletable) {
+                    return
+                }
+
+                super.actionPerformed(e)
             }
         }
     }
