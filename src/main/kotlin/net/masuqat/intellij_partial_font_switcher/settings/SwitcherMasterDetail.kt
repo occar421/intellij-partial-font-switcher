@@ -101,7 +101,11 @@ class SwitcherMasterDetail(private val state: AppSettings.FileTypeSettingsState)
         override fun getLocationString(): String = message("config.setting.location.label")
     }
 
-    class FileTypeFontNode(val configurable: FileTypeFontConfigurable) : FontNode(configurable)
+    class FileTypeFontNode(val configurable: FileTypeFontConfigurable) : FontNode(configurable) {
+        override fun getLocationString(): String =
+            if (configurable.profile.isBaseProfile) message("config.setting.base.location.label")
+            else super.getLocationString()
+    }
 
     override fun isModified(): Boolean {
         return myRoot.children().asSequence().map { it as FontNode }.any { it.configurable.isModified }
