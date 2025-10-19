@@ -10,7 +10,9 @@ import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.ui.JBSplitter
+import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
+import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import javax.swing.JComponent
 
 abstract class FontConfigurable(private val editable: Boolean, updater: Runnable) :
