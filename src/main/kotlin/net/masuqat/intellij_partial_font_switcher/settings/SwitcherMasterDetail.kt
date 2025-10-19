@@ -104,7 +104,9 @@ class SwitcherMasterDetail(
     }
 
     override fun isModified(): Boolean {
-        return allFileTypeConfigurables.any { it.isModified } // FIXME bug after delete
+        // Actually, it may have false positive. I assume it's okay in the most cases.
+        return state.additional.count() + /* base */ 1 != allFileTypeConfigurables.count()
+                || allFileTypeConfigurables.any { it.isModified }
     }
 
     override fun apply() {
