@@ -7,7 +7,7 @@ import com.intellij.psi.tree.IElementType
 import com.jetbrains.rd.util.Runnable
 
 class ElementTypeFontConfigurable(
-    val profile: ElementTypeFontProfile,
+    override val profile: ElementTypeFontProfile,
     updater: Runnable
 ) : FontConfigurable(profile, true, updater) {
     val elementTypeMap = IElementType.enumerate { true }.associateBy { it.toString() }

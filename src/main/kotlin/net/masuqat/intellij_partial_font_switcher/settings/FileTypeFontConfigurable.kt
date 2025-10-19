@@ -10,7 +10,7 @@ import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import javax.swing.Icon
 
 class FileTypeFontConfigurable(
-    val profile: FileTypeFontProfile,
+    override val profile: FileTypeFontProfile,
     private val state: AppSettings.FileTypeSettingState,
     updater: Runnable
 ) : FontConfigurable(profile, !profile.isBaseProfile, updater) {
