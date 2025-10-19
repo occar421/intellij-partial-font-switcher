@@ -16,7 +16,7 @@ class ElementTypeFontConfigurable(override val profile: ElementTypeFontProfile, 
     override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
 
     override fun getDisplayName(): @NlsContexts.ConfigurableName String =
-        elementTypeMap[profile.elementTypeName]?.debugName ?: profile.elementTypeName
+        elementTypeMap[profile.elementTypeName.get()]?.debugName ?: profile.elementTypeName.get()
 
     override fun getTypeSelectorComponent(): JComponent {
         TODO("Not yet implemented")

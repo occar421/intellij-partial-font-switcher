@@ -19,8 +19,7 @@ import javax.swing.JLabel
 import javax.swing.ListCellRenderer
 
 class SwitcherMasterDetail(
-    private val state: AppSettings.FileTypeSettingsState,
-    private val propertyGraph: PropertyGraph
+    private val state: AppSettings.FileTypeSettingsState, private val propertyGraph: PropertyGraph
 ) : MasterDetailsComponent() {
     init {
         initTree()
@@ -92,8 +91,9 @@ class SwitcherMasterDetail(
 
 
     private fun addNewFileTypeNode(fileType: FileType) {
-        val profile =
-            FileTypeFontProfile(fileType.name, propertyGraph.property(true), FontProfile.createInitialScheme())
+        val profile = FileTypeFontProfile(
+            propertyGraph.property(fileType.name), propertyGraph.property(true), FontProfile.createInitialScheme()
+        )
         val configurable =
             FileTypeFontConfigurable(profile, AppSettings.FileTypeSettingState(fileType.name), TREE_UPDATER)
         val node = FileTypeSwitcherNode(configurable)
@@ -124,9 +124,7 @@ class SwitcherMasterDetail(
 
         state.additional = groups[false]?.map {
             AppSettings.FileTypeSettingState(
-                it.profile.fileTypeName,
-                it.profile.enabled.get(),
-                AppSettings.ElementTypeSettingsState().apply {
+                it.profile.fileTypeName.get(), it.profile.enabled.get(), AppSettings.ElementTypeSettingsState().apply {
                     base = AppSettings.ElementTypeSettingState(
                         AppSettings.BASE_ELEMENT_TYPE_NAME, AppSettings.SwitcherFontOptions().apply {
                             update(it.profile.scheme.fontPreferences)
@@ -141,7 +139,7 @@ class SwitcherMasterDetail(
         myRoot.removeAllChildren()
 
         val profile = FileTypeFontProfile(
-            state.base.fileTypeName,
+            propertyGraph.property(state.base.fileTypeName),
             propertyGraph.property(state.base.enabled),
             FontProfile.createInitialScheme() // Do not insert preference to follow global font
         )
@@ -150,7 +148,7 @@ class SwitcherMasterDetail(
 
         state.additional.forEach {
             val profile = FileTypeFontProfile(
-                it.fileTypeName,
+                propertyGraph.property(it.fileTypeName),
                 propertyGraph.property(it.enabled),
                 FontProfile.createInitialScheme().apply {
                     fontPreferences = it.elementTypeSettings.base.options.fontPreferences
@@ -162,13 +160,12 @@ class SwitcherMasterDetail(
         super.reset()
     }
 
-    override fun getNodeComparator(): Comparator<MyNode> =
-        kotlin.Comparator { o1, o2 ->
-            if (o1 is FileTypeSwitcherNode && o2 is FileTypeSwitcherNode) when {
-                o1.configurable.profile.isBaseProfile -> -1
-                o2.configurable.profile.isBaseProfile -> 1
-                else -> super.nodeComparator.compare(o1, o2)
-            }
-            else super.nodeComparator.compare(o1, o2)
+    override fun getNodeComparator(): Comparator<MyNode> = kotlin.Comparator { o1, o2 ->
+        if (o1 is FileTypeSwitcherNode && o2 is FileTypeSwitcherNode) when {
+            o1.configurable.profile.isBaseProfile -> -1
+            o2.configurable.profile.isBaseProfile -> 1
+            else -> super.nodeComparator.compare(o1, o2)
         }
+        else super.nodeComparator.compare(o1, o2)
+    }
 }
