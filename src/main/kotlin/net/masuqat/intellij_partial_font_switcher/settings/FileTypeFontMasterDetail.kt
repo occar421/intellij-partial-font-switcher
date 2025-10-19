@@ -14,6 +14,7 @@ import com.intellij.util.PlatformIcons
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import net.masuqat.intellij_partial_font_switcher.services.SwitcherFontOptions
+import java.util.Comparator
 import javax.swing.JLabel
 import javax.swing.ListCellRenderer
 
@@ -86,6 +87,7 @@ class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsSt
         }
     }
 
+
     private fun addNewFileTypeNode(fileType: FileType) {
         val profile = FileTypeFontProfile(fileType.name, FontProfile.createInitialScheme())
         val configurable =
@@ -143,4 +145,14 @@ class FileTypeFontMasterDetail(private val state: AppSettings.FileTypeSettingsSt
 
         super.reset()
     }
+
+    override fun getNodeComparator(): Comparator<MyNode> =
+        kotlin.Comparator { o1, o2 ->
+            if (o1 is FileTypeFontNode && o2 is FileTypeFontNode) when {
+                o1.configurable.profile.isBaseProfile -> -1
+                o2.configurable.profile.isBaseProfile -> 1
+                else -> super.nodeComparator.compare(o1, o2)
+            }
+            else super.nodeComparator.compare(o1, o2)
+        }
 }
