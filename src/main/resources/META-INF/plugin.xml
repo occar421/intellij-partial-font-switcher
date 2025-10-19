@@ -10,13 +10,13 @@
 
     <applicationListeners>
         <listener
-                class="net.masuqat.intellij_partial_font_switcher.file_type_level.FileTypeLevelSwitcherDynamicPluginListener"
+                class="net.masuqat.intellij_partial_font_switcher.editor_mod.FileTypeLevelSwitcherDynamicPluginListener"
                 topic="com.intellij.ide.plugins.DynamicPluginListener"/>
     </applicationListeners>
 
     <extensions defaultExtensionNs="com.intellij">
         <editorFactoryListener
-                implementation="net.masuqat.intellij_partial_font_switcher.file_type_level.FileTypeLevelSwitcherEditorListener"/>
+                implementation="net.masuqat.intellij_partial_font_switcher.editor_mod.FileTypeLevelSwitcherEditorListener"/>
         <applicationConfigurable
                 id="net.masuqat.intellij_partial_font_switcher.settings.AppConfig"
                 parentId="editor"

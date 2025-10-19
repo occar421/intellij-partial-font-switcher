@@ -9,7 +9,7 @@ import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
-import net.masuqat.intellij_partial_font_switcher.file_type_level.switchFontPreference
+import net.masuqat.intellij_partial_font_switcher.editor_mod.switchFontPreference
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
 import javax.swing.JComponent
 

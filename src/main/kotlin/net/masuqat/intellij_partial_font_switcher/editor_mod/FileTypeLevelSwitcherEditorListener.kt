@@ -1,4 +1,4 @@
-package net.masuqat.intellij_partial_font_switcher.file_type_level
+package net.masuqat.intellij_partial_font_switcher.editor_mod
 
 import com.intellij.openapi.editor.event.EditorFactoryEvent
 import com.intellij.openapi.editor.event.EditorFactoryListener
