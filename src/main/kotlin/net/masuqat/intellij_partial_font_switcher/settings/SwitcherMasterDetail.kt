@@ -162,7 +162,7 @@ class SwitcherMasterDetail(
         super.reset()
     }
 
-    override fun getNodeComparator(): Comparator<MyNode> = kotlin.Comparator { o1, o2 ->
+    override fun getNodeComparator(): Comparator<MyNode> = Comparator { o1, o2 ->
         if (o1 is FileTypeSwitcherNode && o2 is FileTypeSwitcherNode) when {
             o1.configurable.profile.isBaseProfile -> -1
             o2.configurable.profile.isBaseProfile -> 1
