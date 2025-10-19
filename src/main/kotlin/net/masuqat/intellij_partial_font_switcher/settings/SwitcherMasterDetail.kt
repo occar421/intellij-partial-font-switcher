@@ -136,6 +136,8 @@ class SwitcherMasterDetail(
     }
 
     override fun reset() {
+        val selectedFileTypeName = (selectedConfigurable as? FileTypeFontConfigurable)?.profile?.fileTypeName?.get()
+
         myRoot.removeAllChildren()
 
         val profile = FileTypeFontProfile(
@@ -160,6 +162,10 @@ class SwitcherMasterDetail(
         }
 
         super.reset()
+
+        // restore selection
+        selectedNode =
+            allFileTypeSwitcherNodes.firstOrNull { it.configurable.profile.fileTypeName.get() == selectedFileTypeName }
     }
 
     override fun getNodeComparator(): Comparator<MyNode> = Comparator { o1, o2 ->
