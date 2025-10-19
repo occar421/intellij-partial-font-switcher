@@ -10,7 +10,7 @@ import com.intellij.openapi.util.NlsContexts
 import com.intellij.util.PlatformIcons
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
 import net.masuqat.intellij_partial_font_switcher.services.AppSettings
-import java.util.Comparator
+import javax.swing.Icon
 
 class SwitcherMasterDetail(
     private val state: AppSettings.FileTypeSettingsState, private val propertyGraph: PropertyGraph
@@ -98,15 +98,23 @@ class SwitcherMasterDetail(
     }
 
     class FileTypeSwitcherNode(override val configurable: FileTypeFontConfigurable) : SwitcherNode(configurable) {
+        private val fileTypeMap = FileTypeManager.getInstance().registeredFileTypes.associateBy { it.name }
+
         override fun getLocationString(): String =
             if (configurable.profile.isBaseProfile) message("config.setting.base.location.label")
             else super.getLocationString()
+
+        override fun getDisplayName(): @NlsContexts.ConfigurableName String =
+            if (configurable.profile.isBaseProfile) message("config.setting.base.label")
+            else fileTypeMap[configurable.profile.fileTypeName.get()]?.displayName
+                ?: configurable.profile.fileTypeName.get()
+
+        override fun getIcon(expanded: Boolean): Icon? = fileTypeMap[configurable.profile.fileTypeName.get()]?.icon
     }
 
     override fun isModified(): Boolean {
         // Actually, it may have false positive. I assume it's okay in the most cases.
-        return state.additional.count() + /* base */ 1 != allFileTypeConfigurables.count()
-                || allFileTypeConfigurables.any { it.isModified }
+        return state.additional.count() + /* base */ 1 != allFileTypeConfigurables.count() || allFileTypeConfigurables.any { it.isModified }
     }
 
     override fun apply() {

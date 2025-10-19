@@ -13,15 +13,20 @@ import com.intellij.ui.JBSplitter
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
+import javax.swing.Icon
 import javax.swing.JComponent
 
 abstract class FontConfigurable(private val editable: Boolean, updater: Runnable) :
     NamedConfigurable<FontProfile>(false, updater) {
     abstract val profile: FontProfile
 
-    override fun setDisplayName(p0: @NlsSafe String?) {} // No impl.
+    final override fun setDisplayName(p0: @NlsSafe String?) {} // noop
 
-    override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
+    final override fun getDisplayName(): @NlsContexts.ConfigurableName String? = null // noop
+
+    final override fun getIcon(expanded: Boolean): Icon? = null
+
+    final override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null // noop
 
     abstract fun getTypeSelectorComponent(): JComponent
 

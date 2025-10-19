@@ -2,21 +2,12 @@
 
 package net.masuqat.intellij_partial_font_switcher.settings
 
-import com.intellij.openapi.util.NlsContexts
-import com.intellij.psi.tree.IElementType
 import com.jetbrains.rd.util.Runnable
 import javax.swing.JComponent
 
 class ElementTypeFontConfigurable(override val profile: ElementTypeFontProfile, updater: Runnable) :
     FontConfigurable(true, updater) {
-    val elementTypeMap = IElementType.enumerate { true }.associateBy { it.toString() }
-
     override fun getEditableObject(): ElementTypeFontProfile = profile
-
-    override fun getBannerSlogan(): @NlsContexts.DetailedDescription String? = null
-
-    override fun getDisplayName(): @NlsContexts.ConfigurableName String =
-        elementTypeMap[profile.elementTypeName.get()]?.debugName ?: profile.elementTypeName.get()
 
     override fun getTypeSelectorComponent(): JComponent {
         TODO("Not yet implemented")
