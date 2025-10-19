@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.colors.EditorFontCache
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.util.NlsContexts
+import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
@@ -37,6 +38,7 @@ class AppConfig : Configurable, Configurable.Beta {
                 .onIsModified { masterDetail.isModified }
                 .onApply { masterDetail.apply() }
                 .onReset { masterDetail.reset() }
+                .align(AlignX.FILL)
         }
     }
 
