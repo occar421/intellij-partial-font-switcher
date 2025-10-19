@@ -29,7 +29,7 @@ class FileTypeFontConfigurable(
             return false
         }
 
-        return state.elementTypeSettings.base.options.fontPreferences != profile.scheme.fontPreferences
+        return state.enabled != profile.enabled.get() || state.elementTypeSettings.base.options.fontPreferences != profile.scheme.fontPreferences
     }
 
     override fun apply() {} // noop
