@@ -5,6 +5,7 @@ package net.masuqat.intellij_partial_font_switcher.settings
 import com.intellij.openapi.fileTypes.FileTypeManager
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.SimpleListCellRenderer
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.panel
 import com.jetbrains.rd.util.Runnable
@@ -23,7 +24,11 @@ class FileTypeFontConfigurable(
 
     override fun getTypeSelectorComponent(): JComponent {
         if (profile.isBaseProfile) {
-            return panel { }
+            return panel {
+                row(message("config.setting.file_type.label")) {
+                    cell(ComboBox(emptyArray<String>())).enabled(false)
+                }
+            }
         }
 
         val allFileNames = fileTypeMap.keys.toSet()
