@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
     <rect width="40" height="40" fill="#ffffff"/>
     <g fill="#080808">
-        <g transform="translate(3.7, -4.8) scale(0.8)">
+        <g transform="translate(3.7, -5.8) scale(0.8)">
             <path d="M0 51L0 47.40L10 47.40L10 17.85L0.10 25.20L0.10 20.80L8.60 14.50L13.95 14.50L13.95 47.40L22.20 47.40L22.20 51L0 51Z"/>
         </g>
     </g>
     <g fill="#080808">
-        <g transform="translate(22.3, -0.2) scale(0.8)">
+        <g transform="translate(23.3, -1.2) scale(0.8)">
             <path d="M13.18 45.26L8.79 45.26L8.79 17.26Q7.20 18.77 4.63 20.29Q2.05 21.80 0 22.56L0 18.31Q3.69 16.58 6.45 14.11Q9.20 11.65 10.35 9.33L13.18 9.33L13.18 45.26Z"/>
         </g>
     </g>
