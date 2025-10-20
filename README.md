@@ -1,4 +1,4 @@
-# intellij-partial-font-switcher
+# Partial Font Switcher for IntelliJ Platforms
 
 ![Build](https://github.com/occar421/intellij-partial-font-switcher/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/28766.svg)](https://plugins.jetbrains.com/plugin/28766)
