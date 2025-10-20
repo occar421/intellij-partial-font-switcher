@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# intellij-partial-font-switcher Changelog
+# Partial Font Switcher Changelog
 
 ## [Unreleased]
 ### Added
