@@ -49,6 +49,8 @@ abstract class FontConfigurable(private val editable: Boolean, val updateTree: R
             profile.enabled.afterChange {
                 updateOptionsList()
             }
+
+            updateFontPreferences()
         }
 
         return panel {
