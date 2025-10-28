@@ -158,7 +158,7 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
             mySelectedItem = when (anItem) {
                 null -> myNoFontItem
                 is String ->
-                    myItems.find { it.isSelectable && it.familyName === anItem }
+                    myItems.find { it.isSelectable && it.familyName == anItem }
                         ?: MyWarningItem(anItem)
 
                 is MyFontItem -> anItem
