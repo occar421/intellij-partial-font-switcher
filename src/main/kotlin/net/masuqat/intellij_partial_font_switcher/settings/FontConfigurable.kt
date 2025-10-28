@@ -3,7 +3,6 @@
 package net.masuqat.intellij_partial_font_switcher.settings
 
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
-import com.intellij.application.options.colors.FontEditorPreview
 import com.intellij.application.options.editor.fonts.AppFontOptionsPanel
 import com.intellij.openapi.editor.colors.EditorFontCache
 import com.intellij.openapi.ui.NamedConfigurable
@@ -32,7 +31,7 @@ abstract class FontConfigurable(private val editable: Boolean, val updateTree: R
     abstract fun getTypeSelectorComponent(): JComponent
 
     override fun createOptionsPanel(): JComponent {
-        val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
+        val fontEditorPreview = FontEditorPreviewCloned({ profile.scheme }, editable)
         val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
             override fun isReadOnly(): Boolean = !editable || !profile.enabled.get()
             override fun isEnabled(): Boolean = editable && profile.enabled.get()
