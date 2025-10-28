@@ -3,38 +3,22 @@ package net.masuqat.intellij_partial_font_switcher.settings.cloned_components
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
 import com.intellij.application.options.colors.FontPreviewService
 import com.intellij.application.options.colors.PreviewPanel
-import com.intellij.icons.AllIcons
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionUpdateThread
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.actionSystem.CustomShortcutSet
-import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.openapi.actionSystem.ShortcutSet
-import com.intellij.openapi.actionSystem.remoting.ActionRemoteBehaviorSpecification
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationBundle
-import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.EditorKind
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
-import com.intellij.openapi.editor.ex.EditorMarkupModel
 import com.intellij.openapi.editor.highlighter.EditorHighlighter
 import com.intellij.openapi.editor.highlighter.HighlighterClient
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.editor.impl.ContextMenuPopupHandler
-import com.intellij.openapi.editor.markup.AnalyzerStatus
-import com.intellij.openapi.editor.markup.ErrorStripeRenderer
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.editor.markup.UIController
-import com.intellij.openapi.fileEditor.impl.FileDocumentManagerBase
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
@@ -45,7 +29,6 @@ import com.intellij.util.Consumer
 import com.intellij.util.EventDispatcher
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.annotations.Nls
 import java.awt.BorderLayout
 import java.awt.Font
 import java.util.function.Supplier
@@ -61,45 +44,43 @@ import kotlin.math.min
  */
 class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsScheme?>, editable: Boolean) :
     PreviewPanel {
-    private val myEditor: EditorEx
-    private val myTopPanel: JPanel
-
-    private val myTextModel: PreviewTextModel
-
-    private val myDispatcher =
-        EventDispatcher.create<ColorAndFontSettingsListener?>(ColorAndFontSettingsListener::class.java)
-
-    init {
-        @Nls val text = PropertiesComponent.getInstance().getValue(
+    private val myTextModel = PreviewTextModel(
+        PropertiesComponent.getInstance().getValue(
             PREVIEW_TEXT_KEY,
             iDEDemoText
         )
+    )
 
-        myTextModel = PreviewTextModel(text)
-        myEditor = createPreviewEditor(myTextModel.text, mySchemeSupplier.get(), editable) as EditorEx
-        myEditor.setBorder(JBUI.Borders.empty())
-        myEditor.setHighlighter(PreviewHighlighter(myTextModel, myEditor.getDocument()))
-        myEditor.getDocument().addDocumentListener(myTextModel)
-
-        myTopPanel = JPanel(BorderLayout())
-        myTopPanel.add(myEditor.getComponent(), BorderLayout.CENTER)
+    private val myEditor = createPreviewEditor(myTextModel.text, mySchemeSupplier.get(), editable).apply {
+        setBorder(JBUI.Borders.empty())
+        highlighter = PreviewHighlighter(myTextModel, document)
+        document.addDocumentListener(myTextModel)
+    }
+    private val myTopPanel: JPanel = JPanel(BorderLayout()).apply {
+        add(myEditor.component, BorderLayout.CENTER)
 
         if (editable) {
-            val previewLabel = JLabel(ApplicationBundle.message("settings.editor.font.preview.hint"))
-            previewLabel.setFont(JBUI.Fonts.smallFont())
-            previewLabel.setForeground(UIUtil.getContextHelpForeground())
-            previewLabel.setBorder(JBUI.Borders.empty(10, 15, 10, 0))
-            previewLabel.setBackground(myEditor.getBackgroundColor())
-            myTopPanel.add(previewLabel, BorderLayout.SOUTH)
+            val previewLabel = JLabel(ApplicationBundle.message("settings.editor.font.preview.hint")).apply {
+                setFont(JBUI.Fonts.smallFont())
+                setForeground(UIUtil.getContextHelpForeground())
+                setBorder(JBUI.Borders.empty(10, 15, 10, 0))
+                setBackground(myEditor.backgroundColor)
+            }
+            add(previewLabel, BorderLayout.SOUTH)
         }
-        myTopPanel.setBackground(myEditor.getBackgroundColor())
-        myTopPanel.setBorder(this.border)
 
-        registerActions(myEditor)
-        installTrafficLights(myEditor)
+        setBackground(myEditor.getBackgroundColor())
+        setBorder(this@FontEditorPreview.border)
     }
 
-    protected val border: Border
+    private val myDispatcher = EventDispatcher.create(ColorAndFontSettingsListener::class.java)
+
+    init {
+        registerActions(myEditor)
+        // installTrafficLights(myEditor)
+    }
+
+    private val border: Border
         get() = JBUI.Borders.customLine(JBColor.border())
 
     private fun registerActions(editor: EditorEx) {
@@ -107,7 +88,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
         val restoreAction = ActionManager.getInstance().getAction(IdeActions.ACTION_RESTORE_FONT_PREVIEW_TEXT)
         val toggleBoldFontAction = ActionManager.getInstance().getAction("fontEditorPreview.ToggleBoldFont")
         if (restoreAction != null || toggleBoldFontAction != null) {
-            val originalGroupId = editor.getContextMenuGroupId()
+            val originalGroupId = editor.contextMenuGroupId
             val originalGroup =
                 if (originalGroupId == null) null else ActionManager.getInstance().getAction(originalGroupId)
             val group = DefaultActionGroup()
@@ -119,7 +100,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             }
             if (toggleBoldFontAction != null) {
                 group.add(toggleBoldFontAction)
-                DumbAwareAction.create(Consumer { event: AnActionEvent? -> toggleBoldFont(editor) })
+                DumbAwareAction.create(Consumer { _ -> toggleBoldFont(editor) })
                     .registerCustomShortcutSet(
                         TOGGLE_BOLD_SHORTCUT, editor.getComponent()
                     )
@@ -162,12 +143,15 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
         EditorFactory.getInstance().releaseEditor(myEditor)
     }
 
+    /*
     private class DumbTrafficLightRenderer : ErrorStripeRenderer {
         override fun getStatus(): AnalyzerStatus {
             return AnalyzerStatus(AllIcons.General.InspectionsOK, "", "", UIController.EMPTY)
         }
     }
+    */
 
+    /*
     internal class RestorePreviewTextAction : DumbAwareAction() {
         override fun getActionUpdateThread(): ActionUpdateThread {
             return ActionUpdateThread.EDT
@@ -195,7 +179,9 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             }
         }
     }
+    */
 
+    /*
     internal class ToggleBoldFontAction : DumbAwareAction(), ActionRemoteBehaviorSpecification.Frontend {
         override fun getActionUpdateThread(): ActionUpdateThread {
             return ActionUpdateThread.EDT
@@ -216,10 +202,11 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             }
         }
     }
+    */
 
     private class PreviewTextModel(rawPreviewText: String) : DocumentListener {
         private var myText: String? = null
-        private val myRanges: MutableList<RangeHighlightingData> = ArrayList<RangeHighlightingData>()
+        private val myRanges: MutableList<RangeHighlightingData> = ArrayList()
 
         init {
             extractMarkersAndText(rawPreviewText)
@@ -474,35 +461,44 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
         private val TOGGLE_BOLD_SHORTCUT: ShortcutSet = CustomShortcutSet.fromString("control B")
 
         private val iDEDemoText: String
-            get() = FontPreviewService.Companion.getInstance().fontPreviewText
+            get() = FontPreviewService.getInstance().fontPreviewText
 
+        /*
         fun installTrafficLights(editor: EditorEx) {
             val markupModel = editor.getMarkupModel() as EditorMarkupModel
             markupModel.setErrorStripeRenderer(DumbTrafficLightRenderer())
             markupModel.setErrorStripeVisible(true)
         }
+        */
 
-        fun createPreviewEditor(text: String, scheme: EditorColorsScheme, editable: Boolean): Editor {
+        fun createPreviewEditor(text: String, scheme: EditorColorsScheme, editable: Boolean): EditorEx {
             val editorFactory = EditorFactory.getInstance()
             val editorDocument = editorFactory.createDocument(text)
-            // enable editor popup toolbar
-            FileDocumentManagerBase.registerDocument(editorDocument, LightVirtualFile())
-            val editor =
-                (if (editable) editorFactory.createEditor(editorDocument) else editorFactory.createViewer(editorDocument)) as EditorEx
-            editor.setColorsScheme(scheme)
-            val settings = editor.getSettings()
-            settings.setLineNumbersShown(false)
-            settings.setWhitespacesShown(true)
-            settings.setLineMarkerAreaShown(false)
-            settings.setIndentGuidesShown(false)
-            settings.setAdditionalColumnsCount(0)
-            settings.setAdditionalLinesCount(0)
-            settings.setRightMarginShown(true)
-            settings.setRightMargin(60)
-            settings.setGutterIconsShown(false)
-            settings.setIndentGuidesShown(false)
-            (editor.getGutter() as EditorGutterComponentEx).setPaintBackground(false)
-            return editor
+
+            return (editorFactory.createEditor(
+                editorDocument,
+                null,
+                LightVirtualFile(),
+                !editable,
+                EditorKind.PREVIEW
+            ) as EditorEx).apply {
+                colorsScheme = scheme
+
+                settings.apply {
+                    isLineNumbersShown = false
+                    isWhitespacesShown = true
+                    isLineMarkerAreaShown = false
+                    isIndentGuidesShown = false
+                    additionalColumnsCount = 0
+                    additionalLinesCount = 0
+                    isRightMarginShown = true
+                    setRightMargin(60)
+                    setGutterIconsShown(false)
+                    isIndentGuidesShown = false
+                }
+
+                (gutter as EditorGutterComponentEx).isPaintBackground = false
+            }
         }
 
         private fun toggleBoldFont(editor: EditorEx) {
