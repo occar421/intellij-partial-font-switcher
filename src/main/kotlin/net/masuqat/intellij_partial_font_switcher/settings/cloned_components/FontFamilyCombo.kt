@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package net.masuqat.intellij_partial_font_switcher.settings.cloned_components
 
 import com.intellij.openapi.application.ApplicationBundle
@@ -6,17 +8,13 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.editor.colors.FontPreferences
 import com.intellij.openapi.editor.impl.FontFamilyService
 import com.intellij.openapi.ui.popup.ListSeparator
-import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.NlsSafe
 import com.intellij.ui.*
 import com.intellij.ui.components.JBLabel
-import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Font
-import java.util.*
-import java.util.function.Consumer
 import javax.accessibility.AccessibleContext
 import javax.swing.AbstractListModel
 import javax.swing.ComboBoxModel
@@ -31,16 +29,16 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
     private val myIsPrimary: Boolean
 
     init {
-        setSwingPopup(false)
+        isSwingPopup = false
         myIsPrimary = isPrimary
-        ClientProperty.put<Boolean?>(this, AnimatedIcon.ANIMATION_IN_RENDERER_ALLOWED, true)
+        ClientProperty.put(this, AnimatedIcon.ANIMATION_IN_RENDERER_ALLOWED, true)
         setRenderer(object : GroupedComboBoxRenderer<MyFontItem?>(this) {
             override fun customize(
                 item: SimpleColoredComponent,
                 value: MyFontItem?,
                 index: Int,
                 isSelected: Boolean,
-                hasFocus: Boolean
+                cellHasFocus: Boolean
             ) {
                 if (value != null) {
                     if (value is MyWarningItem) {
@@ -62,18 +60,22 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
             }
 
             override fun separatorFor(value: MyFontItem?): ListSeparator? {
-                val m = getModel()
-                if (m is MyModel) {
-                    if (!m.myItems.isEmpty() && ContainerUtil.find<MyFontItem?>(
-                            m.myItems,
-                            Condition { item: MyFontItem? -> item!!.myIsMonospaced }) === value
-                    ) return ListSeparator(ApplicationBundle.message("settings.editor.font.monospaced"))
-                    if (!m.myItems.isEmpty() && ContainerUtil.find<MyFontItem?>(
-                            m.myItems,
-                            Condition { item: MyFontItem? -> !item!!.myIsMonospaced && item !is MyNoFontItem }) === value
-                    ) return ListSeparator(ApplicationBundle.message("settings.editor.font.proportional"))
+                value ?: return null
+                val m = model
+                if (m !is MyModel || m.myItems.isEmpty()) {
+                    return null
                 }
-                return null
+
+                return when (value) {
+                    m.myItems.find { it.myIsMonospaced } -> ListSeparator(ApplicationBundle.message("settings.editor.font.monospaced"))
+                    m.myItems.find { !it.myIsMonospaced && it !is MyNoFontItem } -> ListSeparator(
+                        ApplicationBundle.message(
+                            "settings.editor.font.proportional"
+                        )
+                    )
+
+                    else -> null
+                }
             }
 
             override fun getListCellRendererComponent(
@@ -102,44 +104,27 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
         })
     }
 
-    override fun getFontName(): @NlsSafe String? {
-        val selectedItem = getModel().getSelectedItem()
-        return if (selectedItem is MyFontItem) selectedItem.familyName else null
-    }
+    override fun getFontName(): @NlsSafe String? = (model.selectedItem as? MyFontItem)?.familyName
 
     override fun setFontName(fontName: @NlsSafe String?) {
-        getModel().setSelectedItem(fontName)
+        model.selectedItem = fontName
     }
 
-    override fun isNoFontSelected(): Boolean {
-        return getModel().getSelectedItem() is MyNoFontItem
-    }
+    override fun isNoFontSelected(): Boolean = model.selectedItem is MyNoFontItem
 
-    // region Not supported by this implementation
-    override fun setMonospacedOnly(isMonospacedOnly: Boolean) {
-        // Ignored
-    }
+    override fun setMonospacedOnly(isMonospacedOnly: Boolean) {} // Ignored
 
-    override fun isMonospacedOnly(): Boolean {
-        return false
-    }
+    override fun isMonospacedOnly(): Boolean = false
 
-    override fun isMonospacedOnlySupported(): Boolean {
-        return false
-    }
+    override fun isMonospacedOnlySupported(): Boolean = false
 
-
-    // endregion
     internal open class MyFontItem(val familyName: String, internal var myIsMonospaced: Boolean) {
         internal var myFontCanDisplayName = false
         internal var myFont: Font? = null
 
-        override fun toString(): String {
-            return this.familyName
-        }
+        override fun toString(): String = this.familyName
 
-        val isSelectable: Boolean
-            get() = true
+        val isSelectable = true
     }
 
     private class MyNoFontItem : MyFontItem("<None>", false)
@@ -150,56 +135,47 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
     private class MyModel(withNoneItem: Boolean) : AbstractListModel<MyFontItem?>(), ComboBoxModel<MyFontItem?> {
         var isUpdating: Boolean = true
             private set
-        private val myMonospacedFamilies: MutableSet<String?> = HashSet<String?>()
-        internal val myItems: MutableList<MyFontItem> = ArrayList<MyFontItem>()
-        private val myNoFontItem: MyNoFontItem?
+        private val myMonospacedFamilies = KNOWN_MONOSPACED_FAMILIES.toMutableSet()
+        private val myNoFontItem = if (withNoneItem) MyNoFontItem() else null
+        val myItems = mutableListOf<MyFontItem>().apply {
+            if (withNoneItem) {
+                myNoFontItem?.let { add(it) }
+            }
+
+            addAll(
+                FontFamilyService.getAvailableFamilies()
+                    .map { MyFontItem(it, myMonospacedFamilies.contains(it)) })
+
+            sortWith(MyFontItemComparator())
+        }
         private var mySelectedItem: MyFontItem? = null
 
         init {
-            myMonospacedFamilies.addAll(Arrays.asList<String?>(*KNOWN_MONOSPACED_FAMILIES))
-            if (withNoneItem) {
-                myNoFontItem = MyNoFontItem()
-                myItems.add(myNoFontItem)
-            } else {
-                myNoFontItem = null
-            }
-            FontFamilyService.getAvailableFamilies().forEach(
-                Consumer { name: String? -> myItems.add(MyFontItem(name!!, myMonospacedFamilies.contains(name))) }
-            )
-            Collections.sort<MyFontItem?>(myItems, MyFontItemComparator())
             retrieveFontInfo()
         }
 
         override fun setSelectedItem(anItem: Any?) {
-            if (anItem == null) {
-                mySelectedItem = myNoFontItem
-            } else if (anItem is String) {
-                mySelectedItem = ContainerUtil.find<MyFontItem?>(
-                    myItems,
-                    Condition { item: MyFontItem? -> item!!.isSelectable && item.familyName == anItem })
-                if (mySelectedItem == null) {
-                    mySelectedItem = MyWarningItem(anItem)
-                }
-            } else if (anItem is MyFontItem) {
-                mySelectedItem = anItem
+            mySelectedItem = when (anItem) {
+                null -> myNoFontItem
+                is String ->
+                    myItems.find { it.isSelectable && it.familyName === anItem }
+                        ?: MyWarningItem(anItem)
+
+                is MyFontItem -> anItem
+                else -> return
             }
+
             fireContentsChanged(this, -1, -1)
         }
 
-        override fun getSelectedItem(): MyFontItem? {
-            return mySelectedItem
-        }
+        override fun getSelectedItem(): MyFontItem? = mySelectedItem
 
-        override fun getSize(): Int {
-            return myItems.size
-        }
+        override fun getSize(): Int = myItems.size
 
-        override fun getElementAt(index: Int): MyFontItem? {
-            return myItems.get(index)
-        }
+        override fun getElementAt(index: Int): MyFontItem = myItems[index]
 
         fun retrieveFontInfo() {
-            ApplicationManager.getApplication().executeOnPooledThread(Runnable {
+            ApplicationManager.getApplication().executeOnPooledThread {
                 for (item in myItems) {
                     if (FontFamilyService.isMonospaced(item.familyName)) {
                         myMonospacedFamilies.add(item.familyName)
@@ -208,12 +184,12 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
                     item.myFontCanDisplayName = item.myFont!!.canDisplayUpTo(item.familyName) == -1
                 }
                 updateMonospacedInfo()
-            })
+            }
         }
 
         fun updateMonospacedInfo() {
             ApplicationManager.getApplication().invokeLater(
-                Runnable {
+                {
                     for (item in myItems) {
                         item.myIsMonospaced = myMonospacedFamilies.contains(item.familyName)
                     }
@@ -221,7 +197,7 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
                         myItems.removeIf { item: MyFontItem? -> !item!!.myFontCanDisplayName }
                     }
                     this.isUpdating = false
-                    Collections.sort<MyFontItem?>(myItems, MyFontItemComparator())
+                    myItems.sortWith(MyFontItemComparator())
                     fireContentsChanged(this, -1, -1)
                 }, ModalityState.any()
             )
@@ -233,7 +209,7 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
              * [FontPreferences].
              * It is used for quick filtering of monospaced fonts before the actual list is shown.
              */
-            private val KNOWN_MONOSPACED_FAMILIES = arrayOf<String?>(
+            private val KNOWN_MONOSPACED_FAMILIES = setOf(
                 "Consolas",
                 "DejaVu Sans Mono",
                 "Droid Sans Mono",
@@ -247,21 +223,19 @@ internal class FontFamilyCombo(isPrimary: Boolean) :
         }
     }
 
-    private class MyFontItemComparator : Comparator<MyFontItem?> {
-        override fun compare(item1: MyFontItem?, item2: MyFontItem?): Int {
-            if (item1!! is MyNoFontItem) return -1
-            if (item2!! is MyNoFontItem) return 1
+    private class MyFontItemComparator : Comparator<MyFontItem> {
+        override fun compare(item1: MyFontItem, item2: MyFontItem): Int {
             if (item1.myIsMonospaced && !item2.myIsMonospaced) return -1
             if (!item1.myIsMonospaced && item2.myIsMonospaced) return 1
             return item1.familyName.compareTo(item2.familyName)
         }
 
-        override fun equals(obj: Any?): Boolean {
+        override fun equals(other: Any?): Boolean {
             return false
         }
-    }
 
-    companion object {
-        val maxWidth: Int = 230
+        override fun hashCode(): Int {
+            return javaClass.hashCode()
+        }
     }
 }
