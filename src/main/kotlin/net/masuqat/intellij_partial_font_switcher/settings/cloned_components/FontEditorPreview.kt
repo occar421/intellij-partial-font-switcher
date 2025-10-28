@@ -1,12 +1,20 @@
-package net.masuqat.intellij_partial_font_switcher.settings
+package net.masuqat.intellij_partial_font_switcher.settings.cloned_components
 
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
 import com.intellij.application.options.colors.FontPreviewService
 import com.intellij.application.options.colors.PreviewPanel
 import com.intellij.icons.AllIcons
 import com.intellij.ide.util.PropertiesComponent
-import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.actionSystem.remoting.ActionRemoteBehaviorSpecification.Frontend
+import com.intellij.openapi.actionSystem.ActionGroup
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.CustomShortcutSet
+import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.actionSystem.ShortcutSet
+import com.intellij.openapi.actionSystem.remoting.ActionRemoteBehaviorSpecification
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Document
@@ -48,7 +56,7 @@ import javax.swing.border.Border
 import kotlin.math.max
 import kotlin.math.min
 
-class FontEditorPreviewCloned(private val mySchemeSupplier: Supplier<out EditorColorsScheme?>, editable: Boolean) :
+class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsScheme?>, editable: Boolean) :
     PreviewPanel {
     private val myEditor: EditorEx
     private val myTopPanel: JPanel
@@ -185,7 +193,7 @@ class FontEditorPreviewCloned(private val mySchemeSupplier: Supplier<out EditorC
         }
     }
 
-    internal class ToggleBoldFontAction : DumbAwareAction(), Frontend {
+    internal class ToggleBoldFontAction : DumbAwareAction(), ActionRemoteBehaviorSpecification.Frontend {
         override fun getActionUpdateThread(): ActionUpdateThread {
             return ActionUpdateThread.EDT
         }
@@ -408,7 +416,7 @@ class FontEditorPreviewCloned(private val mySchemeSupplier: Supplier<out EditorC
             myCurrIndex = max(myTextModel.getIndexAtOffset(startOffset), 0)
         }
 
-        val data: FontEditorPreviewCloned.RangeHighlightingData
+        val data: RangeHighlightingData
             get() {
                 val value = myTextModel.getRangeDataAt(myCurrIndex)
                 return if (value == null) EMPTY_RANGE_DATA else value
@@ -463,7 +471,7 @@ class FontEditorPreviewCloned(private val mySchemeSupplier: Supplier<out EditorC
         private val TOGGLE_BOLD_SHORTCUT: ShortcutSet = CustomShortcutSet.fromString("control B")
 
         private val iDEDemoText: String
-            get() = FontPreviewService.getInstance().fontPreviewText
+            get() = FontPreviewService.Companion.getInstance().fontPreviewText
 
         fun installTrafficLights(editor: EditorEx) {
             val markupModel = editor.getMarkupModel() as EditorMarkupModel

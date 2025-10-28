@@ -13,6 +13,7 @@ import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
+import net.masuqat.intellij_partial_font_switcher.settings.cloned_components.FontEditorPreview
 import javax.swing.Icon
 import javax.swing.JComponent
 
@@ -31,7 +32,7 @@ abstract class FontConfigurable(private val editable: Boolean, val updateTree: R
     abstract fun getTypeSelectorComponent(): JComponent
 
     override fun createOptionsPanel(): JComponent {
-        val fontEditorPreview = FontEditorPreviewCloned({ profile.scheme }, editable)
+        val fontEditorPreview = FontEditorPreview({ profile.scheme }, editable)
         val fontOptionsPanel = object : AppFontOptionsPanel(profile.scheme) {
             override fun isReadOnly(): Boolean = !editable || !profile.enabled.get()
             override fun isEnabled(): Boolean = editable && profile.enabled.get()
