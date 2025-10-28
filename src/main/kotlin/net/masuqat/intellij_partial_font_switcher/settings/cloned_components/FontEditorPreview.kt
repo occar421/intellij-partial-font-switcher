@@ -56,6 +56,9 @@ import javax.swing.border.Border
 import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * Clone of com.intellij.application.options.colors.FontEditorPreview internal API
+ */
 class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsScheme?>, editable: Boolean) :
     PreviewPanel {
     private val myEditor: EditorEx
