@@ -1,6 +1,5 @@
 package net.masuqat.intellij_partial_font_switcher.settings.cloned_components
 
-import ai.grazie.utils.applyIfNotNull
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
 import com.intellij.application.options.colors.FontPreviewService
 import com.intellij.application.options.colors.PreviewPanel
@@ -28,7 +27,6 @@ import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.JBColor
 import com.intellij.util.Consumer
 import com.intellij.util.EventDispatcher
-import com.intellij.util.alsoIfNull
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
