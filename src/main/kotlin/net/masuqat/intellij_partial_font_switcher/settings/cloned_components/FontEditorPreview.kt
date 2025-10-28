@@ -1,5 +1,6 @@
 package net.masuqat.intellij_partial_font_switcher.settings.cloned_components
 
+import ai.grazie.utils.applyIfNotNull
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
 import com.intellij.application.options.colors.FontPreviewService
 import com.intellij.application.options.colors.PreviewPanel
@@ -27,6 +28,7 @@ import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.JBColor
 import com.intellij.util.Consumer
 import com.intellij.util.EventDispatcher
+import com.intellij.util.alsoIfNull
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
@@ -46,8 +48,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
     PreviewPanel {
     private val myTextModel = PreviewTextModel(
         PropertiesComponent.getInstance().getValue(
-            PREVIEW_TEXT_KEY,
-            iDEDemoText
+            PREVIEW_TEXT_KEY, iDEDemoText
         )
     )
 
@@ -69,7 +70,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             add(previewLabel, BorderLayout.SOUTH)
         }
 
-        setBackground(myEditor.getBackgroundColor())
+        setBackground(myEditor.backgroundColor)
         setBorder(this@FontEditorPreview.border)
     }
 
@@ -100,10 +101,9 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             }
             if (toggleBoldFontAction != null) {
                 group.add(toggleBoldFontAction)
-                DumbAwareAction.create(Consumer { _ -> toggleBoldFont(editor) })
-                    .registerCustomShortcutSet(
-                        TOGGLE_BOLD_SHORTCUT, editor.getComponent()
-                    )
+                DumbAwareAction.create(Consumer { _ -> toggleBoldFont(editor) }).registerCustomShortcutSet(
+                    TOGGLE_BOLD_SHORTCUT, editor.component
+                )
             }
             editor.installPopupHandler(ContextMenuPopupHandler.Simple(group))
         }
@@ -116,11 +116,11 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
     override fun updateView() {
         val scheme = updateOptionsScheme(mySchemeSupplier.get())
 
-        myEditor.setColorsScheme(scheme)
+        myEditor.colorsScheme = scheme
         myEditor.reinitSettings()
     }
 
-    protected fun updateOptionsScheme(selectedScheme: EditorColorsScheme): EditorColorsScheme {
+    private fun updateOptionsScheme(selectedScheme: EditorColorsScheme): EditorColorsScheme {
         return selectedScheme
     }
 
@@ -136,8 +136,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             PropertiesComponent.getInstance().unsetValue(PREVIEW_TEXT_KEY)
         } else {
             PropertiesComponent.getInstance().setValue(
-                PREVIEW_TEXT_KEY,
-                myTextModel.rawText
+                PREVIEW_TEXT_KEY, myTextModel.rawText
             )
         }
         EditorFactory.getInstance().releaseEditor(myEditor)
@@ -246,66 +245,66 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             get() = myText!!
 
         val rawText: String
-            get() {
-                val builder = StringBuilder()
+            get() = buildString {
                 for (data in myRanges) {
                     if (data.isBold) {
-                        builder.append(BOLD_START_MARKER)
+                        append(BOLD_START_MARKER)
                     }
-                    builder.append(myText, data.textRange.getStartOffset(), data.textRange.getEndOffset())
+                    append(myText, data.textRange.startOffset, data.textRange.endOffset)
                     if (data.isBold) {
-                        builder.append(BOLD_END_MARKER)
+                        append(BOLD_END_MARKER)
                     }
                 }
-                return builder.toString()
             }
 
         val rangeCount: Int
             get() = myRanges.size
 
         fun getRangeDataAt(index: Int): RangeHighlightingData? {
-            return if (myRanges.isEmpty()) null else myRanges.get(index)
+            return if (myRanges.isEmpty()) null else myRanges[index]
         }
 
         val isDefault: Boolean
             get() = iDEDemoText == this.rawText
 
+        /*
         fun resetToDefault() {
             extractMarkersAndText(iDEDemoText)
         }
+        */
 
         override fun documentChanged(event: DocumentEvent) {
-            val docText = event.getDocument().getText()
+            val docText = event.document.text
             if (myText == docText) return
-            if (event.isWholeTextReplaced()) {
+            if (event.isWholeTextReplaced) {
                 myRanges.clear()
                 myRanges.add(RangeHighlightingData(0, docText.length, false))
             } else {
-                val offset = event.getOffset()
-                if (event.getNewLength() >= event.getOldLength()) {
+                val offset = event.offset
+                if (event.newLength >= event.oldLength) {
                     if (myRanges.isEmpty()) {
                         myRanges.add(RangeHighlightingData(0, 0, false))
                     }
-                    val insertedLen = event.getNewLength() - event.getOldLength()
+                    val insertedLen = event.newLength - event.oldLength
                     for (data in myRanges) {
-                        if (data.textRange.contains(offset) || data == myRanges.get(myRanges.size - 1) && data.textRange.getEndOffset() <= offset) {
+                        if (data.textRange.contains(offset) || data == myRanges[myRanges.size - 1] && data.textRange.endOffset <= offset) {
                             data.updateRange(data.textRange.grown(insertedLen))
-                        } else if (data.textRange.getStartOffset() > offset) {
+                        } else if (data.textRange.startOffset > offset) {
                             data.updateRange(data.textRange.shiftRight(insertedLen))
                         }
                     }
                 } else {
-                    val deletedLen = event.getOldLength() - event.getNewLength()
+                    val deletedLen = event.oldLength - event.newLength
                     val deletedRange = TextRange(offset, offset + deletedLen)
                     var delta = 0
                     val rangeIterator = myRanges.iterator()
                     while (rangeIterator.hasNext()) {
                         val data = rangeIterator.next()
-                        val cutoutStart = max(deletedRange.getStartOffset(), data.textRange.getStartOffset())
-                        val cutoutEnd = min(deletedRange.getEndOffset(), data.textRange.getEndOffset())
+                        val cutoutStart = max(deletedRange.startOffset, data.textRange.startOffset)
+                        val cutoutEnd = min(deletedRange.endOffset, data.textRange.endOffset)
                         if (cutoutStart < cutoutEnd) {
                             val shrinkSize = cutoutEnd - cutoutStart
-                            if (shrinkSize == data.textRange.getLength()) {
+                            if (shrinkSize == data.textRange.length) {
                                 rangeIterator.remove()
                             } else {
                                 data.updateRange(data.textRange.grown(-shrinkSize))
@@ -323,24 +322,22 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
 
         fun getIndexAtOffset(offset: Int): Int {
             for (i in myRanges.indices) {
-                if (myRanges.get(i).textRange.contains(offset)) return i
+                if (myRanges[i].textRange.contains(offset)) return i
             }
             return -1
         }
 
         fun toggleBoldFont(toggleRange: TextRange) {
-            val updatedRanges: MutableList<RangeHighlightingData?> = ArrayList<RangeHighlightingData?>()
+            val updatedRanges = mutableListOf<RangeHighlightingData?>()
             myRanges.forEach(java.util.function.Consumer { data: RangeHighlightingData? ->
-                val toggleStart = max(toggleRange.getStartOffset(), data!!.textRange.getStartOffset())
-                val toggleEnd = min(toggleRange.getEndOffset(), data.textRange.getEndOffset())
+                val toggleStart = max(toggleRange.startOffset, data!!.textRange.startOffset)
+                val toggleEnd = min(toggleRange.endOffset, data.textRange.endOffset)
                 if (toggleStart < toggleEnd) {
                     glueRange(
-                        updatedRanges,
-                        TextRange.create(data.textRange.getStartOffset(), toggleStart),
-                        data.isBold
+                        updatedRanges, TextRange.create(data.textRange.startOffset, toggleStart), data.isBold
                     )
                     glueRange(updatedRanges, TextRange.create(toggleStart, toggleEnd), !data.isBold)
-                    glueRange(updatedRanges, TextRange.create(toggleEnd, data.textRange.getEndOffset()), data.isBold)
+                    glueRange(updatedRanges, TextRange.create(toggleEnd, data.textRange.endOffset), data.isBold)
                 } else {
                     glueRange(updatedRanges, data.textRange, data.isBold)
                 }
@@ -354,12 +351,12 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             private const val BOLD_END_MARKER = "</bold>"
 
             private fun glueRange(ranges: MutableList<RangeHighlightingData?>, range: TextRange, isBold: Boolean) {
-                if (!range.isEmpty()) {
-                    val lastRange = if (ranges.isEmpty()) null else ranges.get(ranges.size - 1)
+                if (!range.isEmpty) {
+                    val lastRange = if (ranges.isEmpty()) null else ranges[ranges.size - 1]
                     if (lastRange != null && lastRange.isBold == isBold) {
-                        lastRange.updateRange(lastRange.textRange.grown(range.getLength()))
+                        lastRange.updateRange(lastRange.textRange.grown(range.length))
                     } else {
-                        ranges.add(RangeHighlightingData(range.getStartOffset(), range.getEndOffset(), isBold))
+                        ranges.add(RangeHighlightingData(range.startOffset, range.endOffset, isBold))
                     }
                 }
             }
@@ -378,10 +375,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
         }
 
         override fun toString(): String {
-            return "RangeHighlightingData{" +
-                    "textRange=" + textRange +
-                    ", isBold=" + isBold +
-                    '}'
+            return "RangeHighlightingData{" + "textRange=" + textRange + ", isBold=" + isBold + '}'
         }
     }
 
@@ -396,53 +390,36 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
     }
 
     private class PreviewHighlighterIterator(
-        private val myTextModel: PreviewTextModel,
-        private val myDocument: Document,
-        startOffset: Int
+        private val myTextModel: PreviewTextModel, private val myDocument: Document, startOffset: Int
     ) : HighlighterIterator {
-        private var myCurrIndex: Int
-
-        init {
-            myCurrIndex = max(myTextModel.getIndexAtOffset(startOffset), 0)
-        }
+        private var myCurrIndex: Int = max(myTextModel.getIndexAtOffset(startOffset), 0)
 
         val data: RangeHighlightingData
-            get() {
-                val value = myTextModel.getRangeDataAt(myCurrIndex)
-                return if (value == null) EMPTY_RANGE_DATA else value
-            }
+            get() = myTextModel.getRangeDataAt(myCurrIndex) ?: EMPTY_RANGE_DATA
 
-        override fun getTextAttributes(): TextAttributes {
-            return if (this.data.isBold) BOLD_ATTRIBUTES else PLAIN_ATTRIBUTES
-        }
+        override fun getTextAttributes(): TextAttributes = if (this.data.isBold) BOLD_ATTRIBUTES else PLAIN_ATTRIBUTES
 
-        override fun getStart(): Int {
-            return this.data.textRange.getStartOffset()
-        }
+        override fun getStart(): Int = this.data.textRange.startOffset
 
-        override fun getEnd(): Int {
-            return this.data.textRange.getEndOffset()
-        }
+        override fun getEnd(): Int = this.data.textRange.endOffset
 
-        override fun getTokenType(): IElementType? {
-            return null
-        }
+        override fun getTokenType(): IElementType? = null
 
         override fun advance() {
-            if (myCurrIndex < myTextModel.rangeCount - 1) myCurrIndex++
+            if (myCurrIndex < myTextModel.rangeCount - 1) {
+                myCurrIndex++
+            }
         }
 
         override fun retreat() {
-            if (myCurrIndex > 0) myCurrIndex--
+            if (myCurrIndex > 0) {
+                myCurrIndex--
+            }
         }
 
-        override fun atEnd(): Boolean {
-            return myCurrIndex >= myTextModel.rangeCount - 1
-        }
+        override fun atEnd(): Boolean = myCurrIndex >= myTextModel.rangeCount - 1
 
-        override fun getDocument(): Document {
-            return myDocument
-        }
+        override fun getDocument(): Document = myDocument
 
         companion object {
             private val PLAIN_ATTRIBUTES = TextAttributes(null, null, null, null, Font.PLAIN)
@@ -476,11 +453,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
             val editorDocument = editorFactory.createDocument(text)
 
             return (editorFactory.createEditor(
-                editorDocument,
-                null,
-                LightVirtualFile(),
-                !editable,
-                EditorKind.PREVIEW
+                editorDocument, null, LightVirtualFile(), !editable, EditorKind.PREVIEW
             ) as EditorEx).apply {
                 colorsScheme = scheme
 
@@ -502,15 +475,11 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
         }
 
         private fun toggleBoldFont(editor: EditorEx) {
-            val textModel: PreviewTextModel? = editor.getUserData<PreviewTextModel?>(TEXT_MODEL_KEY)
+            val textModel = editor.getUserData<PreviewTextModel?>(TEXT_MODEL_KEY)
             if (textModel != null) {
-                val selectionModel = editor.getSelectionModel()
-                textModel.toggleBoldFont(
-                    TextRange.create(
-                        selectionModel.getSelectionStart(),
-                        selectionModel.getSelectionEnd()
-                    )
-                )
+                val textRange =
+                    TextRange.create(editor.selectionModel.selectionStart, editor.selectionModel.selectionEnd)
+                textModel.toggleBoldFont(textRange)
                 editor.reinitSettings()
             }
         }
