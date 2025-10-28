@@ -23,7 +23,7 @@ import javax.swing.JLabel
 /**
  * Clone of com.intellij.application.options.editor.fonts.AppFontOptionsPanel internal API
  */
-class AppFontOptionsPanel(private val scheme: EditorColorsScheme) : AbstractFontOptionsPanel() {
+open class AppFontOptionsPanel(private val scheme: EditorColorsScheme) : AbstractFontOptionsPanel() {
 
     protected val defaultPreferences: FontPreferencesImpl = FontPreferencesImpl()
 

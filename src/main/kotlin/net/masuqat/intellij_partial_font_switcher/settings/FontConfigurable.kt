@@ -3,7 +3,6 @@
 package net.masuqat.intellij_partial_font_switcher.settings
 
 import com.intellij.application.options.colors.ColorAndFontSettingsListener
-import com.intellij.application.options.editor.fonts.AppFontOptionsPanel
 import com.intellij.openapi.editor.colors.EditorFontCache
 import com.intellij.openapi.ui.NamedConfigurable
 import com.intellij.openapi.util.NlsContexts
@@ -13,6 +12,7 @@ import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import net.masuqat.intellij_partial_font_switcher.Bundle.message
+import net.masuqat.intellij_partial_font_switcher.settings.cloned_components.AppFontOptionsPanel
 import net.masuqat.intellij_partial_font_switcher.settings.cloned_components.FontEditorPreview
 import javax.swing.Icon
 import javax.swing.JComponent
