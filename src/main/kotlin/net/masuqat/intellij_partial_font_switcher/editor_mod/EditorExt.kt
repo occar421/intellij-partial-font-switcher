@@ -1,21 +1,24 @@
 package net.masuqat.intellij_partial_font_switcher.editor_mod
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.EditorCustomElementRenderer
-import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.event.DocumentEvent
 import com.intellij.openapi.editor.event.DocumentListener
-import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.markup.CustomHighlighterRenderer
+import com.intellij.openapi.editor.markup.HighlighterLayer
+import com.intellij.openapi.editor.markup.HighlighterTargetArea
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiRecursiveElementVisitor
+import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
-import java.awt.Rectangle
 
 val selector = FileTypeFontPreferenceSelector()
+val PARTIAL_FONT_HIGHLIGHTERS_KEY = Key.create<MutableList<RangeHighlighter>>("PARTIAL_FONT_HIGHLIGHTERS")
 
 fun Editor.switchFontPreference() {
     if (this.virtualFile != null) {
@@ -41,6 +44,14 @@ fun Editor.setupPartialFontListener() {
 fun Editor.revertFontPreference() {
     this.colorsScheme.fontPreferences = selector.globalFontPreference
     this.colorsScheme.lineSpacing = selector.globalFontPreference.lineSpacing
+    clearPartialFontHighlighters()
+}
+
+private fun Editor.clearPartialFontHighlighters() {
+    this.getUserData(PARTIAL_FONT_HIGHLIGHTERS_KEY)?.forEach {
+        this.markupModel.removeHighlighter(it)
+    }
+    this.putUserData(PARTIAL_FONT_HIGHLIGHTERS_KEY, null)
 }
 
 fun Editor.applyPartialFont() {
@@ -55,8 +66,7 @@ fun Editor.applyPartialFont() {
     val customFont = Font(fontName, Font.PLAIN, this.colorsScheme.editorFontSize)
 
     // クリーンアップ
-    this.inlayModel.getBlockElementsInRange(0, this.document.textLength, PartialFontInlayRenderer::class.java)
-        .forEach { it.dispose() }
+    clearPartialFontHighlighters()
 
     val targetRanges = mutableListOf<TextRange>()
     psiFile.accept(object : PsiRecursiveElementVisitor() {
@@ -68,49 +78,56 @@ fun Editor.applyPartialFont() {
         }
     })
 
-    this.foldingModel.runBatchFoldingOperation {
-        targetRanges.forEach { range ->
-            // 既存の折りたたみをチェック（通常の FoldRegion）
-            val regions = this.foldingModel.allFoldRegions.filter { 
-                it.startOffset == range.startOffset && it.endOffset == range.endOffset 
-            }
-            if (regions.isEmpty()) {
-                val region = this.foldingModel.addFoldRegion(range.startOffset, range.endOffset, "")
-                region?.isExpanded = false
-            } else {
-                regions.forEach { it.isExpanded = false }
-            }
+    val highlighters = mutableListOf<RangeHighlighter>()
+    
+    // 元のテキストを隠すための属性（透明色を使用）
+    val attributes = TextAttributes()
+    attributes.foregroundColor = Color(0, 0, 0, 0)
 
-            val text = this.document.getText(range)
-            val renderer = PartialFontInlayRenderer(text, customFont)
-            this.inlayModel.addInlineElement(range.startOffset, renderer)
-        }
+    targetRanges.forEach { range ->
+        val highlighter = this.markupModel.addRangeHighlighter(
+            range.startOffset,
+            range.endOffset,
+            HighlighterLayer.ADDITIONAL_SYNTAX,
+            attributes,
+            HighlighterTargetArea.EXACT_RANGE
+        )
+        highlighter.customRenderer = PartialFontHighlighterRenderer(customFont)
+        highlighters.add(highlighter)
     }
+    
+    this.putUserData(PARTIAL_FONT_HIGHLIGHTERS_KEY, highlighters)
 }
 
-class PartialFontInlayRenderer(val text: String, val font: Font) : EditorCustomElementRenderer {
-    override fun calcWidthInPixels(inlay: com.intellij.openapi.editor.Inlay<*>): Int {
-        val metrics = inlay.editor.component.getFontMetrics(font)
-        return text.lines().maxOfOrNull { metrics.stringWidth(it) } ?: 0
-    }
-
-    override fun calcHeightInPixels(inlay: com.intellij.openapi.editor.Inlay<*>): Int {
-        return inlay.editor.lineHeight * text.lines().size
-    }
-
-    override fun paint(
-        inlay: com.intellij.openapi.editor.Inlay<*>,
-        g: Graphics,
-        targetRegion: Rectangle,
-        textAttributes: TextAttributes
-    ) {
+class PartialFontHighlighterRenderer(val font: Font) : CustomHighlighterRenderer {
+    override fun paint(editor: Editor, highlighter: RangeHighlighter, g: Graphics) {
+        val start = highlighter.startOffset
+        val end = highlighter.endOffset
+        if (start >= end || start >= editor.document.textLength) return
+        
+        val actualEnd = end.coerceAtMost(editor.document.textLength)
+        val text = editor.document.getText(TextRange(start, actualEnd))
+        
+        val oldFont = g.font
+        val oldColor = g.color
+        
         g.font = font
-        g.color = textAttributes.foregroundColor
-        val lineHeight = inlay.editor.lineHeight
-        val ascent = inlay.editor.ascent
-
-        text.lines().forEachIndexed { index, line ->
-            g.drawString(line, targetRegion.x, targetRegion.y + index * lineHeight + ascent)
+        g.color = editor.colorsScheme.defaultForeground
+        
+        val ascent = editor.ascent
+        
+        for (i in text.indices) {
+            val offset = start + i
+            val char = text[i]
+            if (char == '\n' || char == '\r' || char == '\t') continue
+            
+            val visualPosition = editor.offsetToVisualPosition(offset)
+            val point = editor.visualPositionToXY(visualPosition)
+            
+            g.drawString(char.toString(), point.x, point.y + ascent)
         }
+        
+        g.font = oldFont
+        g.color = oldColor
     }
 }

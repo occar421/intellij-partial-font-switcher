@@ -5,9 +5,11 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.editor.EditorFactory
 
 class FileTypeLevelSwitcherDynamicPluginListener : DynamicPluginListener {
+
     override fun pluginLoaded(pluginDescriptor: IdeaPluginDescriptor) {
         EditorFactory.getInstance().allEditors.forEach {
             it.switchFontPreference()
+            it.setupPartialFontListener()
         }
     }
 
