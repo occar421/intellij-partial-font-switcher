@@ -6,10 +6,13 @@ val selector = FileTypeFontPreferenceSelector()
 
 fun Editor.switchFontPreference() {
     if (this.virtualFile != null) {
-        this.colorsScheme.fontPreferences = selector.select(this.virtualFile.fileType)
+        val fontPreferences = selector.select(this.virtualFile.fileType)
+        this.colorsScheme.fontPreferences = fontPreferences
+        this.colorsScheme.lineSpacing = fontPreferences.lineSpacing
     }
 }
 
 fun Editor.revertFontPreference() {
     this.colorsScheme.fontPreferences = selector.globalFontPreference
+    this.colorsScheme.lineSpacing = selector.globalFontPreference.lineSpacing
 }
