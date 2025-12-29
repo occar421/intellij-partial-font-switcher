@@ -4,6 +4,7 @@ import com.intellij.application.options.colors.ColorAndFontSettingsListener
 import com.intellij.application.options.colors.FontPreviewService
 import com.intellij.application.options.colors.PreviewPanel
 import com.intellij.ide.util.PropertiesComponent
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.editor.Document
@@ -20,6 +21,7 @@ import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.editor.impl.ContextMenuPopupHandler
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.tree.IElementType
@@ -43,7 +45,7 @@ import kotlin.math.min
  * Clone of com.intellij.application.options.colors.FontEditorPreview internal API
  */
 class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsScheme?>, editable: Boolean) :
-    PreviewPanel {
+    PreviewPanel, Disposable {
     private val myTextModel = PreviewTextModel(
         PropertiesComponent.getInstance().getValue(
             PREVIEW_TEXT_KEY, iDEDemoText
@@ -53,7 +55,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
     private val myEditor = createPreviewEditor(myTextModel.text, mySchemeSupplier.get(), editable).apply {
         setBorder(JBUI.Borders.empty())
         highlighter = PreviewHighlighter(myTextModel, document)
-        document.addDocumentListener(myTextModel)
+        document.addDocumentListener(myTextModel, this@FontEditorPreview)
     }
     private val myTopPanel: JPanel = JPanel(BorderLayout()).apply {
         add(myEditor.component, BorderLayout.CENTER)
@@ -92,7 +94,7 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
                 if (originalGroupId == null) null else ActionManager.getInstance().getAction(originalGroupId)
             val group = DefaultActionGroup()
             if (originalGroup is ActionGroup) {
-                group.addAll(originalGroup)
+                group.add(originalGroup)
             }
             if (restoreAction != null) {
                 group.add(restoreAction)
@@ -129,7 +131,11 @@ class FontEditorPreview(private val mySchemeSupplier: Supplier<out EditorColorsS
         myDispatcher.addListener(listener)
     }
 
+    override fun dispose() {
+    }
+
     override fun disposeUIResources() {
+        Disposer.dispose(this)
         if (myTextModel.isDefault || myTextModel.rawText.isEmpty()) {
             PropertiesComponent.getInstance().unsetValue(PREVIEW_TEXT_KEY)
         } else {
