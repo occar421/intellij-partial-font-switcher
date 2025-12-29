@@ -19,6 +19,25 @@ class FileTypeFontPreferenceSelector {
         return fileTypeSetting.elementTypeSettings.base.options.fontPreferences
     }
 
+    fun selectForElement(fileType: FileType, elementTypeName: String): FontPreferences? {
+        if (!appState.enabled) {
+            return null
+        }
+
+        val fileTypeSetting = appState.fileTypeSettings.additional.firstOrNull { it.fileTypeName == fileType.name }
+        if (!(fileTypeSetting?.enabled ?: false)) {
+            return null
+        }
+
+        val elementTypeSetting =
+            fileTypeSetting!!.elementTypeSettings.additional.firstOrNull { it.elementTypeName == elementTypeName }
+        if (elementTypeSetting == null) {
+            return null
+        }
+
+        return elementTypeSetting.options.fontPreferences
+    }
+
     val globalFontPreference: FontPreferences
         get() = EditorColorsManager.getInstance().globalScheme.fontPreferences
 

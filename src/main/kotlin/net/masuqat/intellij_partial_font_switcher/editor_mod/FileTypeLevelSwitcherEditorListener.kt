@@ -6,5 +6,6 @@ import com.intellij.openapi.editor.event.EditorFactoryListener
 class FileTypeLevelSwitcherEditorListener : EditorFactoryListener {
     override fun editorCreated(event: EditorFactoryEvent) {
         event.editor.switchFontPreference()
+        event.editor.setupPartialFontListener()
     }
 }

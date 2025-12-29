@@ -71,4 +71,8 @@ abstract class FontConfigurable(private val editable: Boolean, val updateTree: R
             }
         }
     }
+
+    override fun isModified(): Boolean = false
+    override fun apply() {}
+    override fun reset() {}
 }
