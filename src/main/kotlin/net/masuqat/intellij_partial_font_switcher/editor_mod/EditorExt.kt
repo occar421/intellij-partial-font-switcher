@@ -6,7 +6,7 @@ val selector = FileTypeFontPreferenceSelector()
 
 fun Editor.switchFontPreference() {
     if (this.virtualFile != null) {
-        val fontPreferences = selector.select(this.virtualFile.fileType)
+        val fontPreferences = selector.select(this.virtualFile!!.fileType)
         this.colorsScheme.fontPreferences = fontPreferences
         this.colorsScheme.lineSpacing = fontPreferences.lineSpacing
     }

@@ -3,7 +3,9 @@
 # Partial Font Switcher Changelog
 
 ## [Unreleased]
+
+### Changed
+- Raise minimum supported version to 2025.3
+- Update dependency libraries
 ### Fixed
-- Fix bug of using font weight setting
-### Removed
-- Remove internal API dependencies
+- Fix bug of line height setting
