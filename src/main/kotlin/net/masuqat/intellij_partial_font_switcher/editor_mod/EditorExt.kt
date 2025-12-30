@@ -16,6 +16,8 @@ import com.intellij.psi.PsiRecursiveElementVisitor
 import java.awt.Color
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.Graphics2D
+import java.awt.RenderingHints
 
 val selector = FileTypeFontPreferenceSelector()
 val PARTIAL_FONT_HIGHLIGHTERS_KEY = Key.create<MutableList<RangeHighlighter>>("PARTIAL_FONT_HIGHLIGHTERS")
@@ -108,26 +110,41 @@ class PartialFontHighlighterRenderer(val font: Font) : CustomHighlighterRenderer
         val actualEnd = end.coerceAtMost(editor.document.textLength)
         val text = editor.document.getText(TextRange(start, actualEnd))
         
-        val oldFont = g.font
-        val oldColor = g.color
+        val g2 = g as? Graphics2D ?: return
+        val oldFont = g2.font
+        val oldColor = g2.color
+        val oldHints = g2.renderingHints
         
-        g.font = font
-        g.color = editor.colorsScheme.defaultForeground
+        g2.font = font
+        g2.color = editor.colorsScheme.defaultForeground
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+        g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON)
         
         val ascent = editor.ascent
         
-        for (i in text.indices) {
-            val offset = start + i
+        var i = 0
+        while (i < text.length) {
             val char = text[i]
-            if (char == '\n' || char == '\r' || char == '\t') continue
-            
-            val visualPosition = editor.offsetToVisualPosition(offset)
-            val point = editor.visualPositionToXY(visualPosition)
-            
-            g.drawString(char.toString(), point.x, point.y + ascent)
+            if (char == '\n' || char == '\r' || char == '\t') {
+                i++
+                continue
+            }
+
+            var j = i
+            while (j < text.length && text[j] != '\n' && text[j] != '\r' && text[j] != '\t') {
+                j++
+            }
+
+            val chunk = text.substring(i, j)
+            // Use visualPositionToXY to handle soft wraps and folding correctly for the start of the chunk
+            val point = editor.visualPositionToXY(editor.offsetToVisualPosition(start + i))
+            g2.drawString(chunk, point.x, point.y + ascent)
+
+            i = j
         }
         
-        g.font = oldFont
-        g.color = oldColor
+        g2.font = oldFont
+        g2.color = oldColor
+        g2.setRenderingHints(oldHints)
     }
 }
